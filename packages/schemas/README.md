@@ -8,27 +8,35 @@ Contratos de eventos e de API do ZipFrames, organizados por serviço publicador.
 - schemas de request e response das APIs HTTP
 - tipos derivados dos schemas, para uso em tempo de compilação
 
-## O que não é
+## Fonte
 
-- regra de negócio de qualquer contexto
-- validação que depende do estado do sistema (isso é use case)
-- schemas usados por um único serviço, que ficam nele
+Derivado da linguagem ubíqua e do mapa de eventos em
+[`knzt/zipframes` `docs/domain/dominio.md`](https://github.com/knzt/zipframes/blob/main/docs/domain/dominio.md).
+Quando AsyncAPI/OpenAPI forem fechados no app, estes schemas acompanham.
 
-## Estrutura
+## Imports
 
-```
-src/services/auth-service
-src/services/notification-service
-src/services/processor-worker
-src/services/video-service
-src/shared
-test
+```ts
+import { parseSchema } from "@zipframes/schemas";
+import { userRegisteredEventSchema } from "@zipframes/schemas/auth-service";
+import { videoUploadedEventSchema } from "@zipframes/schemas/video-service";
+import { videoFailedEventSchema } from "@zipframes/schemas/processor-worker";
 ```
 
-A pasta de cada serviço traz os contratos que **aquele serviço publica**. Quem consome importa do publicador, o que deixa a titularidade do contrato explícita no import.
+Quem consome importa do **serviço publicador**.
+
+## Eventos (v1)
+
+| Evento                                                          | Publicador       | Payload                                                            |
+| --------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------ |
+| `user.registered` / `user.updated` / `user.deleted`             | auth-service     | ver `auth-service`                                                 |
+| `video.uploaded`                                                | video-service    | `videoId`, `ownerId`, `sourceKey`, `originalFileName`, `sizeBytes` |
+| `video.processing.started` / `video.processed` / `video.failed` | processor-worker | ver `processor-worker`                                             |
+
+Exchange: `zipframes.events`.
 
 ## Status
 
-Estrutura e documentação definidas. Setup, configuração e implementação pendentes.
+Contratos de eventos e rascunhos HTTP implementados com Zod, cobertura 100%.
 
-Ainda não depende de `@zipframes/core`: a dependência entra no `package.json` junto com o primeiro código que a usa, não antes.
+`notification-service` não publica eventos de integração; só consome.
