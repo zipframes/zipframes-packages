@@ -13,18 +13,26 @@ Validação de JWT via JWKS.
 - emissão de tokens, que pertence ao auth-service
 - autorização por regra de negócio, como "só o dono vê o vídeo"
 
-## Estrutura
+## Uso
 
-```
-src/jwks
-src/verify
-test
-```
+```ts
+import { createAuthenticator } from "@zipframes/authenticator";
+import { isOk } from "@zipframes/core/result";
 
-Autenticação, não autorização: o pacote diz **quem** é o usuário, verificando o token. **O que** ele pode fazer é regra de cada serviço, como "só o dono vê o vídeo".
+const authenticator = createAuthenticator({
+  jwks: { url: "https://auth.example/.well-known/jwks.json" },
+  issuer: "https://auth.example",
+  audience: "video-service",
+});
+
+const result = await authenticator.verify(bearerToken);
+if (isOk(result)) {
+  // result.value.sub is the authenticated user id
+}
+```
 
 ## Status
 
-Estrutura e documentação definidas. Setup, configuração e implementação pendentes.
+JWKS client e verificação de JWT implementados, com cobertura de testes de 100%.
 
-Ainda não depende de `@zipframes/core`: a dependência entra no `package.json` junto com o primeiro código que a usa, não antes.
+Depende de `@zipframes/core` (`Result` e `UnauthorizedError`) e de `jose`.
