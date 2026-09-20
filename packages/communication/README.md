@@ -14,8 +14,3 @@ Publicação e consumo de eventos, com retry e DLQ, encapsulando o broker.
 - decisão sobre o que fazer com a mensagem (use case)
 - schemas dos eventos (ficam em `@zipframes/schemas`)
 - broker in-memory de teste (fica em `@zipframes/test-toolkit`)
-
-## Status
-
-Publisher, consumer, retry/DLQ e topologia implementados. O adapter RabbitMQ
-(amqplib) entra atrás das mesmas portas (`PublishPort` / `MessageQueue`).

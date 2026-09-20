@@ -26,7 +26,3 @@ const publisher = createPublisher(broker);
 ```
 
 Sempre declarado como `devDependency` nos serviços.
-
-## Status
-
-Containers Testcontainers e broker in-memory implementados.

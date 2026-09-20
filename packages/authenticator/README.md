@@ -30,9 +30,3 @@ if (isOk(result)) {
   // result.value.sub is the authenticated user id
 }
 ```
-
-## Status
-
-JWKS client e verificação de JWT implementados, com cobertura de testes de 100%.
-
-Depende de `@zipframes/core` (`Result` e `UnauthorizedError`) e de `jose`.

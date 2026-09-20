@@ -34,9 +34,3 @@ Quem consome importa do **serviço publicador**.
 | `video.processing.started` / `video.processed` / `video.failed` | processor-worker | ver `processor-worker`                                             |
 
 Exchange: `zipframes.events`.
-
-## Status
-
-Contratos de eventos e rascunhos HTTP implementados com Zod, cobertura 100%.
-
-`notification-service` não publica eventos de integração; só consome.

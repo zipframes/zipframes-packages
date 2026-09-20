@@ -30,9 +30,3 @@ if (isOk(tracing)) {
   });
 }
 ```
-
-## Status
-
-Métricas técnicas Prometheus e tracing OpenTelemetry implementados, com cobertura de testes de 100%.
-
-Depende de `@zipframes/core`, `prom-client` e do SDK OpenTelemetry.
