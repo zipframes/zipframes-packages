@@ -48,7 +48,3 @@ As duas formas entregam a mesma implementação.
 Os erros de infraestrutura têm `retryable`, que por padrão é `true`. É por ele que o consumer decide entre reenfileirar a mensagem e mandá-la para a DLQ, sem inspecionar a classe.
 
 Nada aqui conhece HTTP. Mapear um erro para status é trabalho do adapter, na camada de apresentação. Por isso não existe `InternalServerError`: uma falha inesperada é `InfrastructureError` ou uma exceção que ninguém tratou.
-
-## Status
-
-Estrutura e documentação definidas. Setup, configuração e implementação pendentes.

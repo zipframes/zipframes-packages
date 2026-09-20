@@ -27,9 +27,3 @@ runWithCorrelationId(createCorrelationId(), () => {
 ```
 
 `createLogger` sempre emite `service` e `version`. Quando um `correlationId` está no contexto assíncrono, ele entra em toda linha. Campos como `password`, `token` e `secret` saem como `[Redacted]`.
-
-## Status
-
-Logger JSON com correlation ID e redação implementados, com cobertura de testes de 100%.
-
-Não depende de `@zipframes/core`: o pacote é só infraestrutura de logging.
