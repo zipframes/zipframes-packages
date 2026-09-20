@@ -4,27 +4,29 @@ Base para os testes de integração dos serviços.
 
 ## O que é
 
-- containers prontos de PostgreSQL, RabbitMQ, Redis e storage compatível com S3
-- helpers de ciclo de vida, como subir, migrar e limpar entre testes
-- builders e dados de apoio
+- containers prontos de PostgreSQL, RabbitMQ, Redis e storage S3-compatível (MinIO)
+- `createInMemoryBroker` para testes unitários das portas de `@zipframes/communication`
+- helpers de ciclo de vida (`start` / `stop`)
 
 ## O que não é
 
-- fixtures de domínio de um serviço, que ficam nele
+- fixtures de domínio de um serviço
 - qualquer coisa usada em tempo de execução
 
-## Estrutura
+## Uso
 
-```
-src/containers
-src/fixtures
-test
+```ts
+import { startPostgres, startRabbitMq, createInMemoryBroker } from "@zipframes/test-toolkit";
+import { createPublisher, createDefaultTopology } from "@zipframes/communication";
+
+const postgres = await startPostgres();
+const broker = createInMemoryBroker();
+await broker.assertTopology(createDefaultTopology({ consumerQueues: [] }));
+const publisher = createPublisher(broker);
 ```
 
 Sempre declarado como `devDependency` nos serviços.
 
 ## Status
 
-Estrutura e documentação definidas. Setup, configuração e implementação pendentes.
-
-Ainda não depende de `@zipframes/core`: a dependência entra no `package.json` junto com o primeiro código que a usa, não antes.
+Containers Testcontainers e broker in-memory implementados.

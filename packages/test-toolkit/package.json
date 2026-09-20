@@ -21,6 +21,23 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@testcontainers/postgresql": "^10.28.0",
+    "@testcontainers/rabbitmq": "^10.28.0",
+    "@testcontainers/redis": "^10.28.0",
+    "@zipframes/communication": "workspace:^",
+    "@zipframes/core": "workspace:^",
+    "@zipframes/schemas": "workspace:^",
+    "testcontainers": "^10.28.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.2.4"
   }
 }
