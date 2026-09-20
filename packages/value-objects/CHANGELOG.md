@@ -1,5 +1,11 @@
 # @zipframes/value-objects
 
+## 0.2.0
+
+### Minor Changes
+
+- [#25](https://github.com/zipframes/zipframes-packages/pull/25) [`b56f89f`](https://github.com/zipframes/zipframes-packages/commit/b56f89f02f9b246165f02245fa390166c3228b1b) Thanks [@knzt](https://github.com/knzt)! - Add `Name` value object for person/display names (trim, collapse whitespace, length and letter-based format checks).
+
 ## 0.1.0
 
 ### Minor Changes
