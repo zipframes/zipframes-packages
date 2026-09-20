@@ -15,8 +15,24 @@ Métricas Prometheus e tracing OpenTelemetry.
 
 Separado do `logger` porque traz um SDK pesado e nem todo serviço precisa dele desde o começo.
 
+## Uso
+
+```ts
+import { createMetrics, initTracing, withSpan } from "@zipframes/telemetry";
+import { isOk } from "@zipframes/core/result";
+
+const metrics = createMetrics({ service: "video-service", version: "1.0.0" });
+const tracing = initTracing({ service: "video-service", version: "1.0.0" });
+
+if (isOk(tracing)) {
+  await withSpan(tracing.value.tracer, "list-videos", async () => {
+    metrics.httpRequestsTotal.inc({ method: "GET", route: "/videos", status: "200" });
+  });
+}
+```
+
 ## Status
 
-Estrutura e documentação definidas. Setup, configuração e implementação pendentes.
+Métricas técnicas Prometheus e tracing OpenTelemetry implementados, com cobertura de testes de 100%.
 
-Ainda não depende de `@zipframes/core`: a dependência entra no `package.json` junto com o primeiro código que a usa, não antes.
+Depende de `@zipframes/core`, `prom-client` e do SDK OpenTelemetry.
