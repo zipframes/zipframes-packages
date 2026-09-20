@@ -4,30 +4,18 @@ Publicação e consumo de eventos, com retry e DLQ, encapsulando o broker.
 
 ## O que é
 
-- publisher com confirms e suporte ao outbox relay
-- consumer com ack manual e prefetch configurável
+- publisher com confirmação e envelope tipado (`@zipframes/schemas`)
+- consumer com ack / retry / dead-letter
 - retry com backoff e roteamento para a DLQ
-- declaração de exchanges, filas e bindings
+- topologia padrão do exchange `zipframes.events`
 
 ## O que não é
 
-- decisão sobre o que fazer com a mensagem, que é do use case
-- schemas dos eventos, que vivem em `@zipframes/schemas`
-
-## Estrutura
-
-```
-src/consumer
-src/publisher
-src/retry
-src/topology
-test
-```
-
-Nenhum serviço importa `amqplib` diretamente: o broker fica atrás das interfaces deste pacote.
+- decisão sobre o que fazer com a mensagem (use case)
+- schemas dos eventos (ficam em `@zipframes/schemas`)
+- broker in-memory de teste (fica em `@zipframes/test-toolkit`)
 
 ## Status
 
-Estrutura e documentação definidas. Setup, configuração e implementação pendentes.
-
-Ainda não depende de `@zipframes/core`: a dependência entra no `package.json` junto com o primeiro código que a usa, não antes.
+Publisher, consumer, retry/DLQ e topologia implementados. O adapter RabbitMQ
+(amqplib) entra atrás das mesmas portas (`PublishPort` / `MessageQueue`).
