@@ -65,11 +65,12 @@ src/
 ├── email/           # Email
 ├── phone/           # Phone (telefone brasileiro)
 ├── cpf/             # Cpf
-└── cnpj/            # Cnpj
+├── cnpj/            # Cnpj
+└── name/            # Name
 ```
 
 Uma pasta por value object, e não agrupada por categoria: `Cpf` e `Cnpj` ficam
-lado a lado com `Email` e `Phone`, já que são poucos e a busca por nome do
+lado a lado com `Email`, `Phone` e `Name`, já que são poucos e a busca por nome do
 arquivo já resolve. `Address`/`CEP` saiu do escopo por não ser usado em
 nenhum lugar do domínio do ZipFrames — pode voltar se um serviço precisar.
 

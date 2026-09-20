@@ -43,5 +43,6 @@ E devolve o construtor, o tipo e os utilitários de igualdade e serialização.
 | ---------- | ---------------- | ----------------------------------------------------- |
 | `contact`  | `Email`, `Phone` | Formato de e-mail e telefone, com normalização        |
 | `document` | `Cpf`, `Cnpj`    | Dígitos verificadores, definidos pela Receita Federal |
+| `identity` | `Name`           | Nome de pessoa: trim, espaços colapsados, sem dígitos |
 
 Todos são construídos com a mesma base, então servem de exemplo vivo do padrão.
