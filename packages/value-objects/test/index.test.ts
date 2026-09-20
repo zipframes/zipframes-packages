@@ -5,9 +5,9 @@ import { Email } from "../src/index.js";
 import type { Email as EmailType } from "../src/index.js";
 
 describe("public package surface", () => {
-  it("exports the base factory and all four generic value objects as values", () => {
+  it("exports the base factory and all generic value objects as values", () => {
     expect(Object.keys(valueObjects)).toEqual(
-      expect.arrayContaining(["defineValueObject", "Email", "Phone", "Cpf", "Cnpj"]),
+      expect.arrayContaining(["defineValueObject", "Email", "Phone", "Cpf", "Cnpj", "Name"]),
     );
   });
 
