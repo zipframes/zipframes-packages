@@ -10,8 +10,26 @@ Logs estruturados em JSON com correlation ID.
 
 É dependência de todo serviço desde o primeiro dia, então é deliberadamente leve.
 
+## Uso
+
+```ts
+import { createLogger, createCorrelationId, runWithCorrelationId } from "@zipframes/logger";
+
+const logger = createLogger({
+  service: "auth-service",
+  version: "1.0.0",
+  level: "info",
+});
+
+runWithCorrelationId(createCorrelationId(), () => {
+  logger.info("request started", { path: "/login" });
+});
+```
+
+`createLogger` sempre emite `service` e `version`. Quando um `correlationId` está no contexto assíncrono, ele entra em toda linha. Campos como `password`, `token` e `secret` saem como `[Redacted]`.
+
 ## Status
 
-Estrutura e documentação definidas. Setup, configuração e implementação pendentes.
+Logger JSON com correlation ID e redação implementados, com cobertura de testes de 100%.
 
-Ainda não depende de `@zipframes/core`: a dependência entra no `package.json` junto com o primeiro código que a usa, não antes.
+Não depende de `@zipframes/core`: o pacote é só infraestrutura de logging.
