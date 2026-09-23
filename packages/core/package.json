@@ -24,6 +24,14 @@
     "./errors": {
       "types": "./dist/errors/index.d.ts",
       "default": "./dist/errors/index.js"
+    },
+    "./readiness": {
+      "types": "./dist/readiness/index.d.ts",
+      "default": "./dist/readiness/index.js"
+    },
+    "./http": {
+      "types": "./dist/http/index.d.ts",
+      "default": "./dist/http/index.js"
     }
   },
   "main": "./dist/index.js",
