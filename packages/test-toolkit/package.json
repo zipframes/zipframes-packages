@@ -1,6 +1,6 @@
 {
   "name": "@zipframes/test-toolkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Base de testes de integração com Testcontainers.",
   "license": "MIT",
   "type": "module",

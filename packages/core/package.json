@@ -1,6 +1,6 @@
 {
   "name": "@zipframes/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Result, branded types e erros base de domínio e de aplicação, sem dependência externa.",
   "license": "MIT",
   "type": "module",

@@ -1,5 +1,13 @@
 # @zipframes/communication
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`663e368`](https://github.com/zipframes/zipframes-packages/commit/663e3688358011e52f6cb4e0f39b6bebf05e0150)]:
+  - @zipframes/core@0.2.0
+  - @zipframes/schemas@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
