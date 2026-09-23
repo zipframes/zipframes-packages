@@ -1,5 +1,11 @@
 # @zipframes/core
 
+## 0.2.0
+
+### Minor Changes
+
+- [#29](https://github.com/zipframes/zipframes-packages/pull/29) [`663e368`](https://github.com/zipframes/zipframes-packages/commit/663e3688358011e52f6cb4e0f39b6bebf05e0150) Thanks [@knzt](https://github.com/knzt)! - - feat(core): add readiness checks, Problem Details and retryable helper
+
 ## 0.1.0
 
 ### Minor Changes
