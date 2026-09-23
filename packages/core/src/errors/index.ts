@@ -12,3 +12,4 @@ export {
   TimeoutError,
   UnavailableError,
 } from "./errors.js";
+export { isRetryableError } from "./is-retryable.js";

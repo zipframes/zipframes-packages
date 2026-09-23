@@ -37,6 +37,10 @@ describe("public package surface", () => {
         "ForbiddenError",
         "TimeoutError",
         "UnavailableError",
+        "isRetryableError",
+        "createReadinessCheck",
+        "problemDetails",
+        "PROBLEM_CONTENT_TYPE",
       ]),
     );
   });
