@@ -1,6 +1,6 @@
 {
   "name": "@zipframes/value-objects",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Value objects genéricos e a base para criar novos value objects.",
   "license": "MIT",
   "type": "module",
