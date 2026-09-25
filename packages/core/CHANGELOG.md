@@ -1,5 +1,11 @@
 # @zipframes/core
 
+## 0.3.0
+
+### Minor Changes
+
+- [#35](https://github.com/zipframes/zipframes-packages/pull/35) [`47e71c0`](https://github.com/zipframes/zipframes-packages/commit/47e71c0a4bff6ecceb0029311c686364dacdbe48) Thanks [@knzt](https://github.com/knzt)! - - feat(core): add problemResponse helper
+
 ## 0.2.0
 
 ### Minor Changes
