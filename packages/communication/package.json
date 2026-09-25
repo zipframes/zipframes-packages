@@ -1,6 +1,6 @@
 {
   "name": "@zipframes/communication",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Publisher, consumer, retry com backoff e DLQ para o broker de mensagens.",
   "license": "MIT",
   "type": "module",

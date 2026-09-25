@@ -1,5 +1,11 @@
 # @zipframes/communication
 
+## 0.1.3
+
+### Patch Changes
+
+- [#37](https://github.com/zipframes/zipframes-packages/pull/37) [`80328bf`](https://github.com/zipframes/zipframes-packages/commit/80328bf6949123200da15930cfd327056d5ba674) Thanks [@knzt](https://github.com/knzt)! - - fix(communication): drop the unused dependency on core
+
 ## 0.1.2
 
 ### Patch Changes
