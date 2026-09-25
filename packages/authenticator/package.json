@@ -1,6 +1,6 @@
 {
   "name": "@zipframes/authenticator",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Validação de JWT via JWKS.",
   "license": "MIT",
   "type": "module",
