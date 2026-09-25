@@ -20,12 +20,7 @@ export class DomainError extends BaseError {
 export class ApplicationError extends BaseError {
   readonly kind: ErrorKind = "application";
 
-  constructor(
-    code: string,
-    message: string,
-    options: BaseErrorOptions = {},
-    statusCode = 400,
-  ) {
+  constructor(code: string, message: string, options: BaseErrorOptions = {}, statusCode = 400) {
     super(code, message, statusCode, options);
   }
 }

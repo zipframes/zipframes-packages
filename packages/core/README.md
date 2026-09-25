@@ -54,19 +54,19 @@ As duas formas entregam a mesma implementação.
 
 Cada classe traz `statusCode` (número HTTP). Os padrões são:
 
-| Classe / origem        | `statusCode` |
-| ---------------------- | ------------ |
-| `DomainError`          | 400          |
-| `ApplicationError`     | 400          |
-| `InfrastructureError`  | 500          |
-| `ValidationError`      | 400          |
-| `UnauthorizedError`    | 401          |
-| `ForbiddenError`       | 403          |
-| `NotFoundError`        | 404          |
-| `ConflictError`        | 409          |
-| `InternalServerError`  | 500          |
-| `UnavailableError`     | 503          |
-| `TimeoutError`         | 504          |
+| Classe / origem       | `statusCode` |
+| --------------------- | ------------ |
+| `DomainError`         | 400          |
+| `ApplicationError`    | 400          |
+| `InfrastructureError` | 500          |
+| `ValidationError`     | 400          |
+| `UnauthorizedError`   | 401          |
+| `ForbiddenError`      | 403          |
+| `NotFoundError`       | 404          |
+| `ConflictError`       | 409          |
+| `InternalServerError` | 500          |
+| `UnavailableError`    | 503          |
+| `TimeoutError`        | 504          |
 
 O adapter HTTP lê `error.statusCode` em vez de montar tabelas `instanceof`. `toJSON()` inclui o status. `http/` empacota um envelope RFC 9457 (`problemDetails`, `problemResponse`) a partir do status já escolhido.
 

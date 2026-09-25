@@ -25,12 +25,7 @@ export abstract class BaseError extends Error {
   readonly statusCode: number;
   readonly details: Record<string, unknown> | undefined;
 
-  constructor(
-    code: string,
-    message: string,
-    statusCode: number,
-    options: BaseErrorOptions = {},
-  ) {
+  constructor(code: string, message: string, statusCode: number, options: BaseErrorOptions = {}) {
     super(message, options.cause !== undefined ? { cause: options.cause } : undefined);
     this.name = new.target.name;
     this.code = code;
