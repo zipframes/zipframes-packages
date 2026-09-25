@@ -4,7 +4,7 @@ Base para os testes de integração dos serviços.
 
 ## O que é
 
-- containers prontos de PostgreSQL, RabbitMQ, Redis e storage S3-compatível (MinIO)
+- containers prontos de PostgreSQL, RabbitMQ, Redis e storage S3-compatível (SeaweedFS)
 - helpers de ciclo de vida (`start` / `stop`)
 
 ## O que não é

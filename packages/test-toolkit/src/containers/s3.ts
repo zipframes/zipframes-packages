@@ -13,23 +13,47 @@ export type S3Handle = {
 const ACCESS_KEY = "zipframes";
 const SECRET_KEY = "zipframes-secret";
 const REGION = "us-east-1";
+const S3_PORT = 8333;
+
+/** Image that `docker pull` can fetch anonymously. Callers can override it. */
+export const DEFAULT_S3_IMAGE = "chrislusf/seaweedfs:3.80";
+
+const s3IdentityConfig = JSON.stringify({
+  identities: [
+    {
+      name: "zipframes",
+      credentials: [{ accessKey: ACCESS_KEY, secretKey: SECRET_KEY }],
+      actions: ["Admin", "Read", "Write", "List", "Tagging"],
+    },
+  ],
+});
 
 /**
- * Starts a MinIO container with an S3-compatible API. SeaweedFS is what the
- * Compose stack uses in the app repo; MinIO is enough for integration tests.
+ * Starts SeaweedFS with its S3 gateway. Pass an image to override the default
+ * tag when a caller needs a different build.
  */
-export const startS3 = async (): Promise<S3Handle> => {
-  const container = await new GenericContainer("minio/minio:RELEASE.2024-12-18T13-15-44Z")
-    .withEnvironment({
-      MINIO_ROOT_USER: ACCESS_KEY,
-      MINIO_ROOT_PASSWORD: SECRET_KEY,
-    })
-    .withCommand(["server", "/data"])
-    .withExposedPorts(9000)
+export const startS3 = async (image: string = DEFAULT_S3_IMAGE): Promise<S3Handle> => {
+  const container = await new GenericContainer(image)
+    .withCopyContentToContainer([
+      {
+        content: s3IdentityConfig,
+        target: "/etc/seaweedfs/s3.json",
+      },
+    ])
+    .withCommand([
+      "server",
+      "-dir=/data",
+      "-filer",
+      "-s3",
+      "-s3.config=/etc/seaweedfs/s3.json",
+      `-s3.port=${String(S3_PORT)}`,
+    ])
+    .withExposedPorts(S3_PORT)
     .withWaitStrategy(Wait.forListeningPorts())
+    .withStartupTimeout(90_000)
     .start();
 
-  const endpoint = `http://${container.getHost()}:${String(container.getMappedPort(9000))}`;
+  const endpoint = `http://${container.getHost()}:${String(container.getMappedPort(S3_PORT))}`;
 
   return {
     container,
