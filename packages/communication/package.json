@@ -31,7 +31,10 @@
     "@zipframes/schemas": "workspace:^"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.7",
     "@vitest/coverage-v8": "^3.2.4",
+    "@zipframes/test-toolkit": "workspace:^",
+    "amqplib": "^0.10.8",
     "vitest": "^3.2.4"
   }
 }

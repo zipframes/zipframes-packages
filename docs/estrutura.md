@@ -36,7 +36,6 @@ flowchart BT
   auth --> core
   telemetry --> core
   logger --> core
-  toolkit --> core
 ```
 
 ## Pacotes
@@ -129,11 +128,10 @@ Verifica quem é o usuário. Não emite tokens, que é papel do auth-service, e 
 
 ```
 src/
-├── containers/      # containers de PostgreSQL, RabbitMQ, Redis e storage
-└── fixtures/        # builders e dados de apoio
+└── containers/      # containers de PostgreSQL, RabbitMQ, Redis e storage
 ```
 
-Depende de `core` e é sempre uma `devDependency` nos serviços.
+Não depende dos outros pacotes. É sempre uma `devDependency` nos serviços.
 
 ## Convenções
 
