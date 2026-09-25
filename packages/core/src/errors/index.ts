@@ -11,5 +11,6 @@ export {
   ForbiddenError,
   TimeoutError,
   UnavailableError,
+  InternalServerError,
 } from "./errors.js";
 export { isRetryableError } from "./is-retryable.js";

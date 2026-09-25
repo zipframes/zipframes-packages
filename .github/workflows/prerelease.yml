@@ -154,6 +154,10 @@ jobs:
         if: steps.gate.outputs.should-release == 'true'
         run: pnpm turbo run build --filter=./packages/*
 
+      - name: Remember changeset package names
+        if: steps.gate.outputs.should-release == 'true'
+        run: node .github/scripts/changeset-packages.mjs --list > /tmp/changeset-package-names.txt
+
       - name: Version as a snapshot
         if: steps.gate.outputs.should-release == 'true'
         run: pnpm exec changeset version --snapshot pr${{ github.event.pull_request.number }}
@@ -162,7 +166,7 @@ jobs:
 
       - name: Keep the snapshot limited to packages the changeset names
         if: steps.gate.outputs.should-release == 'true'
-        run: node .github/scripts/changeset-packages.mjs --restore-others
+        run: node .github/scripts/changeset-packages.mjs --restore-others --from-file /tmp/changeset-package-names.txt
 
       - name: Publish snapshot
         if: steps.gate.outputs.should-release == 'true'

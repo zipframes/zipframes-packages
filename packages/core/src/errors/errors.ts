@@ -7,6 +7,10 @@ import type { BaseErrorOptions, ErrorKind } from "./base-error.js";
  */
 export class DomainError extends BaseError {
   readonly kind: ErrorKind = "domain";
+
+  constructor(code: string, message: string, options: BaseErrorOptions = {}) {
+    super(code, message, 400, options);
+  }
 }
 
 /**
@@ -15,6 +19,10 @@ export class DomainError extends BaseError {
  */
 export class ApplicationError extends BaseError {
   readonly kind: ErrorKind = "application";
+
+  constructor(code: string, message: string, options: BaseErrorOptions = {}, statusCode = 400) {
+    super(code, message, statusCode, options);
+  }
 }
 
 /**
@@ -30,8 +38,9 @@ export class InfrastructureError extends BaseError {
     code: string,
     message: string,
     options: BaseErrorOptions & { readonly retryable?: boolean } = {},
+    statusCode = 500,
   ) {
-    super(code, message, options);
+    super(code, message, statusCode, options);
     this.retryable = options.retryable ?? true;
   }
 
@@ -46,19 +55,65 @@ export class ValidationError extends DomainError {}
 /**
  * The resource does not exist, or does not exist for whoever asked.
  */
-export class NotFoundError extends ApplicationError {}
+export class NotFoundError extends ApplicationError {
+  constructor(code: string, message: string, options: BaseErrorOptions = {}) {
+    super(code, message, options, 404);
+  }
+}
 
 /** The operation clashes with the current state, such as confirming an upload twice. */
-export class ConflictError extends ApplicationError {}
+export class ConflictError extends ApplicationError {
+  constructor(code: string, message: string, options: BaseErrorOptions = {}) {
+    super(code, message, options, 409);
+  }
+}
 
 /** No valid identity was presented. */
-export class UnauthorizedError extends ApplicationError {}
+export class UnauthorizedError extends ApplicationError {
+  constructor(code: string, message: string, options: BaseErrorOptions = {}) {
+    super(code, message, options, 401);
+  }
+}
 
 /** The identity is valid but is not allowed to perform the operation. */
-export class ForbiddenError extends ApplicationError {}
+export class ForbiddenError extends ApplicationError {
+  constructor(code: string, message: string, options: BaseErrorOptions = {}) {
+    super(code, message, options, 403);
+  }
+}
 
 /** A deadline was exceeded. Retryable by default. */
-export class TimeoutError extends InfrastructureError {}
+export class TimeoutError extends InfrastructureError {
+  constructor(
+    code: string,
+    message: string,
+    options: BaseErrorOptions & { readonly retryable?: boolean } = {},
+  ) {
+    super(code, message, options, 504);
+  }
+}
 
 /** A dependency is unreachable or refusing work. Retryable by default. */
-export class UnavailableError extends InfrastructureError {}
+export class UnavailableError extends InfrastructureError {
+  constructor(
+    code: string,
+    message: string,
+    options: BaseErrorOptions & { readonly retryable?: boolean } = {},
+  ) {
+    super(code, message, options, 503);
+  }
+}
+
+/**
+ * An unexpected failure inside the service or one of its dependencies.
+ * Not retryable by default.
+ */
+export class InternalServerError extends InfrastructureError {
+  constructor(
+    code: string,
+    message: string,
+    options: BaseErrorOptions & { readonly retryable?: boolean } = {},
+  ) {
+    super(code, message, { ...options, retryable: options.retryable ?? false }, 500);
+  }
+}

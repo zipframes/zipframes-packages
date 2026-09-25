@@ -37,6 +37,7 @@ describe("public package surface", () => {
         "ForbiddenError",
         "TimeoutError",
         "UnavailableError",
+        "InternalServerError",
         "isRetryableError",
         "createReadinessCheck",
         "problemDetails",

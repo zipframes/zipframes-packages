@@ -58,8 +58,21 @@ function repoRoot() {
   return execFileSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim();
 }
 
-function restoreOthers(root) {
+function packageNamesFromFile(path) {
+  const names = new Set();
+  if (!existsSync(path)) return names;
+  for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
+    const name = line.trim();
+    if (name.length > 0) names.add(name);
+  }
+  return names;
+}
+
+function restoreOthers(root, namesFile) {
   const names = collectPackageNames(join(root, ".changeset"));
+  if (names.size === 0 && namesFile !== undefined) {
+    for (const name of packageNamesFromFile(namesFile)) names.add(name);
+  }
   const dirs = packageDirsNotNamed(join(root, "packages"), names);
   const paths = [];
   for (const dir of dirs) {
@@ -96,10 +109,17 @@ function main() {
     return;
   }
   if (command === "--restore-others") {
-    restoreOthers(root);
+    const namesFileArg = process.argv.indexOf("--from-file");
+    const namesFile =
+      namesFileArg !== -1 && process.argv[namesFileArg + 1] !== undefined
+        ? process.argv[namesFileArg + 1]
+        : undefined;
+    restoreOthers(root, namesFile);
     return;
   }
-  throw new Error("usage: changeset-packages.mjs --list | --summary | --restore-others");
+  throw new Error(
+    "usage: changeset-packages.mjs --list | --summary | --restore-others [--from-file <path>]",
+  );
 }
 
 const isDirectRun =

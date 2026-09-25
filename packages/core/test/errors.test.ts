@@ -7,6 +7,7 @@ import {
   DomainError,
   ForbiddenError,
   InfrastructureError,
+  InternalServerError,
   isBaseError,
   NotFoundError,
   TimeoutError,
@@ -71,6 +72,7 @@ describe("toJSON", () => {
       name: "DomainError",
       kind: "domain",
       code: "INVALID_STATUS",
+      statusCode: 400,
       message: "invalid transition",
     });
   });
@@ -84,14 +86,31 @@ describe("toJSON", () => {
       name: "DomainError",
       kind: "domain",
       code: "INVALID_STATUS",
+      statusCode: 400,
       message: "invalid transition",
       details: { from: "DONE", to: "PROCESSING" },
     });
   });
 });
 
+describe("statusCode", () => {
+  it("assigns the default HTTP status per class", () => {
+    expect(new DomainError("A", "a").statusCode).toBe(400);
+    expect(new ApplicationError("B", "b").statusCode).toBe(400);
+    expect(new InfrastructureError("C", "c").statusCode).toBe(500);
+    expect(new ValidationError("D", "d").statusCode).toBe(400);
+    expect(new UnauthorizedError("E", "e").statusCode).toBe(401);
+    expect(new ForbiddenError("F", "f").statusCode).toBe(403);
+    expect(new NotFoundError("G", "g").statusCode).toBe(404);
+    expect(new ConflictError("H", "h").statusCode).toBe(409);
+    expect(new InternalServerError("I", "i").statusCode).toBe(500);
+    expect(new UnavailableError("J", "j").statusCode).toBe(503);
+    expect(new TimeoutError("K", "k").statusCode).toBe(504);
+  });
+});
+
 describe("service subclasses", () => {
-  class VideoNotFoundError extends ApplicationError {
+  class VideoNotFoundError extends NotFoundError {
     constructor(videoId: string) {
       super("VIDEO_NOT_FOUND", "video not found", { details: { videoId } });
     }
@@ -102,7 +121,8 @@ describe("service subclasses", () => {
 
     expect(error.name).toBe("VideoNotFoundError");
     expect(error.kind).toBe("application");
-    expect(error).toBeInstanceOf(ApplicationError);
+    expect(error.statusCode).toBe(404);
+    expect(error).toBeInstanceOf(NotFoundError);
     expect(error.details).toEqual({ videoId: "abc" });
   });
 });
@@ -131,6 +151,7 @@ describe("semantic errors", () => {
     expect(new ForbiddenError("NOT_ALLOWED", "not allowed").kind).toBe("application");
     expect(new TimeoutError("FFMPEG_TIMEOUT", "ffmpeg timed out").kind).toBe("infrastructure");
     expect(new UnavailableError("BROKER_DOWN", "broker unavailable").kind).toBe("infrastructure");
+    expect(new InternalServerError("UNEXPECTED", "unexpected failure").kind).toBe("infrastructure");
   });
 
   it("keeps the inheritance chain", () => {
@@ -138,11 +159,13 @@ describe("semantic errors", () => {
     expect(new NotFoundError("B", "b")).toBeInstanceOf(ApplicationError);
     expect(new TimeoutError("C", "c")).toBeInstanceOf(InfrastructureError);
     expect(new UnavailableError("D", "d")).toBeInstanceOf(BaseError);
+    expect(new InternalServerError("E", "e")).toBeInstanceOf(InfrastructureError);
   });
 
   it("names each error after its own class", () => {
     expect(new NotFoundError("A", "a").name).toBe("NotFoundError");
     expect(new TimeoutError("B", "b").name).toBe("TimeoutError");
+    expect(new InternalServerError("C", "c").name).toBe("InternalServerError");
   });
 });
 
@@ -151,6 +174,7 @@ describe("retryable", () => {
     expect(new InfrastructureError("A", "a").retryable).toBe(true);
     expect(new TimeoutError("B", "b").retryable).toBe(true);
     expect(new UnavailableError("C", "c").retryable).toBe(true);
+    expect(new InternalServerError("D", "d").retryable).toBe(false);
   });
 
   it("can be turned off for a permanent failure", () => {
@@ -166,6 +190,7 @@ describe("retryable", () => {
       name: "UnavailableError",
       kind: "infrastructure",
       code: "BROKER_DOWN",
+      statusCode: 503,
       message: "broker unavailable",
       retryable: true,
     });
@@ -181,6 +206,7 @@ describe("retryable", () => {
       name: "TimeoutError",
       kind: "infrastructure",
       code: "FFMPEG_TIMEOUT",
+      statusCode: 504,
       message: "ffmpeg timed out",
       details: { videoId: "abc" },
       retryable: false,
