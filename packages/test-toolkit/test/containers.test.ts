@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const stop = vi.fn(async () => undefined);
+const s3Images: string[] = [];
 
 vi.mock("@testcontainers/postgresql", () => ({
   PostgreSqlContainer: class {
@@ -32,6 +33,9 @@ vi.mock("@testcontainers/redis", () => ({
 vi.mock("testcontainers", () => ({
   Wait: { forListeningPorts: () => ({}) },
   GenericContainer: class {
+    constructor(image: string) {
+      s3Images.push(image);
+    }
     withEnvironment() {
       return this;
     }
@@ -44,9 +48,15 @@ vi.mock("testcontainers", () => ({
     withWaitStrategy() {
       return this;
     }
+    withCopyContentToContainer() {
+      return this;
+    }
+    withStartupTimeout() {
+      return this;
+    }
     start = async () => ({
       getHost: () => "127.0.0.1",
-      getMappedPort: () => 9000,
+      getMappedPort: (port: number) => port,
       stop,
     });
   },
@@ -55,6 +65,7 @@ vi.mock("testcontainers", () => ({
 describe("containers", () => {
   beforeEach(() => {
     stop.mockClear();
+    s3Images.length = 0;
   });
 
   it("starts PostgreSQL", async () => {
@@ -79,13 +90,21 @@ describe("containers", () => {
     await handle.stop();
   });
 
-  it("starts an S3-compatible MinIO", async () => {
+  it("starts SeaweedFS S3", async () => {
     const { startS3 } = await import("../src/containers/s3.js");
     const handle = await startS3();
-    expect(handle.endpoint).toBe("http://127.0.0.1:9000");
+    expect(s3Images).toEqual(["chrislusf/seaweedfs:3.80"]);
+    expect(handle.endpoint).toBe("http://127.0.0.1:8333");
     expect(handle.accessKey).toBe("zipframes");
     expect(handle.secretKey).toBe("zipframes-secret");
     expect(handle.region).toBe("us-east-1");
     await handle.stop();
+    expect(stop).toHaveBeenCalled();
+  });
+
+  it("accepts an S3 image override", async () => {
+    const { startS3 } = await import("../src/containers/s3.js");
+    await startS3("example.invalid/seaweedfs:test");
+    expect(s3Images).toEqual(["example.invalid/seaweedfs:test"]);
   });
 });
