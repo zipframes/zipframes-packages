@@ -5,7 +5,6 @@ Base para os testes de integração dos serviços.
 ## O que é
 
 - containers prontos de PostgreSQL, RabbitMQ, Redis e storage S3-compatível (MinIO)
-- `createInMemoryBroker` para testes unitários das portas de `@zipframes/communication`
 - helpers de ciclo de vida (`start` / `stop`)
 
 ## O que não é
@@ -16,13 +15,13 @@ Base para os testes de integração dos serviços.
 ## Uso
 
 ```ts
-import { startPostgres, startRabbitMq, createInMemoryBroker } from "@zipframes/test-toolkit";
-import { createPublisher, createDefaultTopology } from "@zipframes/communication";
+import { startPostgres, startRabbitMq } from "@zipframes/test-toolkit";
 
 const postgres = await startPostgres();
-const broker = createInMemoryBroker();
-await broker.assertTopology(createDefaultTopology({ consumerQueues: [] }));
-const publisher = createPublisher(broker);
+const rabbit = await startRabbitMq();
+
+await postgres.stop();
+await rabbit.stop();
 ```
 
 Sempre declarado como `devDependency` nos serviços.

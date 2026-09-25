@@ -13,4 +13,4 @@ Publicação e consumo de eventos, com retry e DLQ, encapsulando o broker.
 
 - decisão sobre o que fazer com a mensagem (use case)
 - schemas dos eventos (ficam em `@zipframes/schemas`)
-- broker in-memory de teste (fica em `@zipframes/test-toolkit`)
+- abrir a conexão com o broker (quem testa sobe RabbitMQ com `@zipframes/test-toolkit`)

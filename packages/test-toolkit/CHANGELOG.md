@@ -1,5 +1,11 @@
 # @zipframes/test-toolkit
 
+## 0.2.0
+
+### Minor Changes
+
+- Remove `createInMemoryBroker`. The toolkit only starts containers (`startPostgres`, `startRabbitMq`, `startRedis`, `startS3`) and no longer depends on `@zipframes/communication`.
+
 ## 0.1.1
 
 ### Patch Changes
