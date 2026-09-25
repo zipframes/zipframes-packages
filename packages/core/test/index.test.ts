@@ -40,6 +40,7 @@ describe("public package surface", () => {
         "isRetryableError",
         "createReadinessCheck",
         "problemDetails",
+        "problemResponse",
         "PROBLEM_CONTENT_TYPE",
       ]),
     );
