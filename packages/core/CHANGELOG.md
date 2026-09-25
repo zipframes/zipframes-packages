@@ -1,5 +1,11 @@
 # @zipframes/core
 
+## 0.4.0
+
+### Minor Changes
+
+- [#39](https://github.com/zipframes/zipframes-packages/pull/39) [`5a06932`](https://github.com/zipframes/zipframes-packages/commit/5a06932307ba4124454ab4052a95bfb471122cdc) Thanks [@knzt](https://github.com/knzt)! - Add `InternalServerError` with `retryable: false` by default. Every error class now carries `statusCode` for HTTP adapters.
+
 ## 0.3.0
 
 ### Minor Changes
