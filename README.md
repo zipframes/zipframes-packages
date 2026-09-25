@@ -61,7 +61,7 @@ pnpm lint              # ESLint
 pnpm format            # confere a formatação (pnpm format:write para corrigir)
 ```
 
-O changeset de cada PR é gerado sozinho a partir dos commits `feat`/`fix` (Conventional Commits), e commitado de volta na própria branch — não precisa rodar `pnpm changeset` à mão, a menos que a mudança mereça um resumo mais rico do que a mensagem do commit carrega. Veja [docs/versionamento.md](docs/versionamento.md) para o fluxo completo de versão e publicação.
+O changeset de cada PR é gerado sozinho a partir dos commits `feat`/`fix` (Conventional Commits), e commitado de volta na própria branch — não precisa rodar `pnpm changeset` à mão, a menos que a mudança mereça um resumo mais rico do que a mensagem do commit carrega. O merge na `main` versiona todo pacote alterado, mesmo quando o commit é `chore`, `refactor` ou `test`. Veja [docs/versionamento.md](docs/versionamento.md) para o fluxo completo de versão e publicação.
 
 ## Status
 

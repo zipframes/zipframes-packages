@@ -14,8 +14,12 @@
 # file, auto-pr-<number>.md, recomputed from the whole PR every time so it
 # never misses a package a later commit touched. That file is committed
 # straight to the PR branch, so it merges into main with the rest of the PR
-# and the release workflow finds it already there — no second generation at
-# merge time. A changeset added by hand is never touched or duplicated.
+# and the release workflow finds it already there. A PR that never earned a
+# changeset still gets one on main: release.yml versions every package that
+# push changed, including chore, refactor and test. A changeset added by
+# hand is never touched or duplicated.
+#
+# This feat/fix gate applies only to pushes on an open pull request.
 #
 # The snapshot version looks like 0.1.0-pr7-20260101120000: the real next
 # version, the PR number, and a timestamp. It publishes under the `pr7`
