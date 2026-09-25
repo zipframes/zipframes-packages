@@ -16,18 +16,25 @@ export type BaseErrorOptions = {
 /**
  * Base error for the packages and the services.
  *
- * Carries a stable, machine readable code and optional details.
+ * Carries a stable, machine readable code, HTTP status, and optional details.
  */
 export abstract class BaseError extends Error {
   abstract readonly kind: ErrorKind;
 
   readonly code: string;
+  readonly statusCode: number;
   readonly details: Record<string, unknown> | undefined;
 
-  constructor(code: string, message: string, options: BaseErrorOptions = {}) {
+  constructor(
+    code: string,
+    message: string,
+    statusCode: number,
+    options: BaseErrorOptions = {},
+  ) {
     super(message, options.cause !== undefined ? { cause: options.cause } : undefined);
     this.name = new.target.name;
     this.code = code;
+    this.statusCode = statusCode;
     this.details = options.details;
   }
 
@@ -36,6 +43,7 @@ export abstract class BaseError extends Error {
       name: this.name,
       kind: this.kind,
       code: this.code,
+      statusCode: this.statusCode,
       message: this.message,
       ...(this.details !== undefined ? { details: this.details } : {}),
     };

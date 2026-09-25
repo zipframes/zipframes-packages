@@ -72,6 +72,7 @@ describe("toJSON", () => {
       name: "DomainError",
       kind: "domain",
       code: "INVALID_STATUS",
+      statusCode: 400,
       message: "invalid transition",
     });
   });
@@ -85,14 +86,31 @@ describe("toJSON", () => {
       name: "DomainError",
       kind: "domain",
       code: "INVALID_STATUS",
+      statusCode: 400,
       message: "invalid transition",
       details: { from: "DONE", to: "PROCESSING" },
     });
   });
 });
 
+describe("statusCode", () => {
+  it("assigns the default HTTP status per class", () => {
+    expect(new DomainError("A", "a").statusCode).toBe(400);
+    expect(new ApplicationError("B", "b").statusCode).toBe(400);
+    expect(new InfrastructureError("C", "c").statusCode).toBe(500);
+    expect(new ValidationError("D", "d").statusCode).toBe(400);
+    expect(new UnauthorizedError("E", "e").statusCode).toBe(401);
+    expect(new ForbiddenError("F", "f").statusCode).toBe(403);
+    expect(new NotFoundError("G", "g").statusCode).toBe(404);
+    expect(new ConflictError("H", "h").statusCode).toBe(409);
+    expect(new InternalServerError("I", "i").statusCode).toBe(500);
+    expect(new UnavailableError("J", "j").statusCode).toBe(503);
+    expect(new TimeoutError("K", "k").statusCode).toBe(504);
+  });
+});
+
 describe("service subclasses", () => {
-  class VideoNotFoundError extends ApplicationError {
+  class VideoNotFoundError extends NotFoundError {
     constructor(videoId: string) {
       super("VIDEO_NOT_FOUND", "video not found", { details: { videoId } });
     }
@@ -103,7 +121,8 @@ describe("service subclasses", () => {
 
     expect(error.name).toBe("VideoNotFoundError");
     expect(error.kind).toBe("application");
-    expect(error).toBeInstanceOf(ApplicationError);
+    expect(error.statusCode).toBe(404);
+    expect(error).toBeInstanceOf(NotFoundError);
     expect(error.details).toEqual({ videoId: "abc" });
   });
 });
@@ -171,6 +190,7 @@ describe("retryable", () => {
       name: "UnavailableError",
       kind: "infrastructure",
       code: "BROKER_DOWN",
+      statusCode: 503,
       message: "broker unavailable",
       retryable: true,
     });
@@ -186,6 +206,7 @@ describe("retryable", () => {
       name: "TimeoutError",
       kind: "infrastructure",
       code: "FFMPEG_TIMEOUT",
+      statusCode: 504,
       message: "ffmpeg timed out",
       details: { videoId: "abc" },
       retryable: false,
