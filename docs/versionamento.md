@@ -20,7 +20,7 @@ O controle é feito com [Changesets](https://github.com/changesets/changesets). 
 
 1. **`.github/workflows/prerelease.yml`**, a cada push num PR contra `main`: gera o changeset a partir dos commits `feat` e `fix` do PR (`.github/scripts/generate-changeset.mjs`) e o commita direto na branch do PR, num arquivo único (`auto-pr-<número>.md`) recalculado do zero a cada push relevante. Um changeset escrito à mão (`pnpm changeset`) sempre tem prioridade: o gerador automático não roda quando um já existe.
 2. Esse changeset **entra no PR como qualquer outro arquivo** e vai para a `main` no merge — não é gerado depois, é revisável junto com o código que descreve.
-3. **`.github/workflows/release.yml`**, a cada push na `main`: se por algum motivo o merge não trouxe changeset (um commit direto na `main`, por exemplo), gera um como último recurso, a partir dos commits daquele push. No caminho normal isso nunca dispara, porque o changeset já veio do PR.
+3. **`.github/workflows/release.yml`**, a cada push na `main`: se o merge não trouxe changeset, gera um para cada pacote que o push alterou — inclusive quando o commit é `chore`, `refactor` ou `test`. `feat` continua minor, `fix` continua patch, e um marcador de breaking continua major; qualquer outro commit que toque o pacote entra como patch. O commit `chore: version packages` é ignorado, para o merge do PR de versão não abrir outro. Num PR com `feat`/`fix` o changeset já veio da branch e esse passo não dispara.
 4. O mesmo workflow então abre (ou atualiza) um pull request **"Version Packages"**, com as versões calculadas e o changelog já escrito a partir dos changesets pendentes.
 5. Revisar e mergear esse PR é o ato de decidir publicar. Ao mergear, o workflow roda de novo, não encontra mais changesets pendentes e publica as versões daquele PR no GitHub Packages.
 
@@ -30,9 +30,11 @@ O changelog sai do resumo do changeset, que por sua vez sai das mensagens dos co
 
 ### Como o gerador decide
 
-`generate-changeset.mjs` lê os commits de um intervalo do git, mantendo só os que seguem Conventional Commits com tipo `feat` ou `fix` (outros tipos, como `chore` ou `docs`, nunca geram changeset nem versão nova). Para cada commit qualificado, descobre quais pacotes ele tocou pelos arquivos alterados dentro de `packages/*/`, e usa o `name` do `package.json` de cada um — não o nome da pasta — para preencher a entrada do changeset.
+`generate-changeset.mjs` lê os commits de um intervalo do git. Num pull request ele mantém só os que seguem Conventional Commits com tipo `feat` ou `fix`: `chore`, `refactor`, `test` ou `docs` não geram changeset nem snapshot. Na `main` o mesmo script roda com `--any-package-change`, e qualquer commit que altere arquivos dentro de um pacote gera changeset.
 
-O bump de cada pacote é o maior entre os commits que o tocam: `feat` vira `minor`, `fix` vira `patch`, e um `!` depois do tipo (ou um rodapé `BREAKING CHANGE:`) vira `major`, na convenção usual de Conventional Commits.
+Para cada commit qualificado, descobre quais pacotes ele tocou pelos arquivos alterados dentro de `packages/*/`, e usa o `name` do `package.json` de cada um — não o nome da pasta — para preencher a entrada do changeset.
+
+O bump de cada pacote é o maior entre os commits que o tocam: `feat` vira `minor`, `fix` vira `patch`, e um `!` depois do tipo (ou um rodapé `BREAKING CHANGE:`) vira `major`, na convenção usual de Conventional Commits. Na `main`, um commit que não é `feat` nem `fix` e mesmo assim altera o pacote entra como `patch`.
 
 ### Sem bump automático entre pacotes
 
@@ -44,7 +46,7 @@ A única exceção é mecânica, não de conteúdo: se a versão nova do `core` 
 
 Todo push num PR contra `main` passa pelo mesmo workflow que gera o changeset (`.github/workflows/prerelease.yml`), e publica uma versão de teste quando há algo para publicar:
 
-1. **Decide se vale a pena.** Compara os commits deste push (todos, na primeira vez; só os novos, nas seguintes) contra o gerador de changeset. Um push que só traz `chore`, `docs`, `test` ou uma correção de lint não aciona nada — o snapshot anterior, se houver, continua valendo para teste. Um changeset escrito à mão no meio do PR também aciona, mesmo sem commit `feat`/`fix` novo.
+1. **Decide se vale a pena.** Compara os commits deste push (todos, na primeira vez; só os novos, nas seguintes) contra o gerador de changeset. Esse portão vale só para o push no PR aberto. Um push que só traz `chore`, `docs`, `test` ou uma correção de lint não aciona snapshot nenhum — o snapshot anterior, se houver, continua valendo para teste. O merge na `main` não usa esse portão: o pacote alterado ganha versão mesmo assim. Um changeset escrito à mão no meio do PR também aciona o snapshot, mesmo sem commit `feat`/`fix` novo.
 2. **Regenera o changeset do PR inteiro**, não só do push atual, no arquivo único `auto-pr-<número>.md`. Isso evita perder um pacote que um commit anterior já tinha tocado.
 3. **Commita esse arquivo na própria branch do PR.** É o mesmo commit que vai para a `main` no merge — não existe uma segunda geração depois.
 4. Publica com `changeset version --snapshot pr<número>` e `changeset publish --tag pr<número>`. A versão fica `0.1.0-pr7-20260101120000`: o próximo número real, a tag do PR e um timestamp, sem disputar a tag `latest` com a versão de verdade.
