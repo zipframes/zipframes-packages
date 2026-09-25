@@ -6,22 +6,17 @@
 // should skip invoking this script when one already exists for the range in
 // question. See docs/versionamento.md.
 //
-// By default (pull-request snapshots) only feat and fix commits count. A
-// chore, refactor or test commit never drags a package into that release.
-// Pass --any-package-change on main: every commit that touches a package
-// still gets a changeset, and the bump is at least a patch. feat, fix and
-// breaking markers keep their usual severity, and they win when higher.
+// Only feat and fix commits count. A chore, refactor, test or docs commit
+// never drags a package into a release. The "chore: version packages"
+// commit is the Version Packages PR landing; it is not a feat or a fix, so
+// merging it cannot open another version PR.
 //
 // Each package's bump comes only from the commits that touch it. A package
 // touched by both a feat and a fix in the same range gets the more
 // significant of the two, not the more significant across the whole range.
 //
-// The "chore: version packages" commit is ignored even with
-// --any-package-change. That commit is the Version Packages PR landing, and
-// treating it as a new change would open another version PR forever.
-//
 // Usage:
-//   node generate-changeset.mjs --from <ref> --to <ref> [--any-package-change] [--out-dir <dir>] [--filename <name>]
+//   node generate-changeset.mjs --from <ref> --to <ref> [--out-dir <dir>] [--filename <name>]
 //
 // Writes <out-dir>/<filename> (default: auto-<short sha>.md) when the range
 // warrants a release, and reports the outcome on $GITHUB_OUTPUT as `created`
@@ -37,18 +32,17 @@ const BREAKING_FOOTER = /BREAKING CHANGE:/;
 const VERSION_PACKAGES_COMMIT = /^chore(?:\([^)]*\))?!?: version packages(?:\s|$)/;
 
 function parseArgs(argv) {
-  const args = { outDir: ".changeset", anyPackageChange: false };
+  const args = { outDir: ".changeset" };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--from") args.from = argv[++i];
     else if (argv[i] === "--to") args.to = argv[++i];
     else if (argv[i] === "--out-dir") args.outDir = argv[++i];
     else if (argv[i] === "--filename") args.filename = argv[++i];
-    else if (argv[i] === "--any-package-change") args.anyPackageChange = true;
     else throw new Error(`unknown argument: ${argv[i]}`);
   }
   if (!args.from || !args.to) {
     throw new Error(
-      "usage: generate-changeset.mjs --from <ref> --to <ref> [--any-package-change] [--out-dir <dir>] [--filename <name>]",
+      "usage: generate-changeset.mjs --from <ref> --to <ref> [--out-dir <dir>] [--filename <name>]",
     );
   }
   return args;
@@ -83,23 +77,18 @@ function commitsInRange(from, to) {
   });
 }
 
-/**
- * null when the commit should not release.
- * With anyPackageChange, a commit that touches a package is at least a patch.
- */
-function bumpFor(commit, anyPackageChange) {
+/** null when the commit should not release. */
+function bumpFor(commit) {
   if (VERSION_PACKAGES_COMMIT.test(commit.subject)) return null;
 
   const match = CONVENTIONAL_COMMIT.exec(commit.subject);
-  if (match) {
-    const [, type, , breaking] = match;
-    const isBreaking = Boolean(breaking) || BREAKING_FOOTER.test(commit.body);
-    if (isBreaking) return "major";
-    if (type === "feat") return "minor";
-    if (type === "fix") return "patch";
-  }
+  if (!match) return null;
 
-  if (anyPackageChange && commit.packageDirs.size > 0) return "patch";
+  const [, type, , breaking] = match;
+  const isBreaking = Boolean(breaking) || BREAKING_FOOTER.test(commit.body);
+  if (isBreaking) return "major";
+  if (type === "feat") return "minor";
+  if (type === "fix") return "patch";
   return null;
 }
 
@@ -116,14 +105,14 @@ function setOutput(name, value) {
 }
 
 function main() {
-  const { from, to, outDir, filename, anyPackageChange } = parseArgs(process.argv.slice(2));
+  const { from, to, outDir, filename } = parseArgs(process.argv.slice(2));
   const commits = commitsInRange(from, to);
 
   // package name -> { bump, subjects: Set<string> }
   const perPackage = new Map();
 
   for (const commit of commits) {
-    const bump = bumpFor(commit, anyPackageChange);
+    const bump = bumpFor(commit);
     if (bump === null || commit.packageDirs.size === 0) continue;
 
     for (const dir of commit.packageDirs) {
@@ -141,11 +130,7 @@ function main() {
   }
 
   if (perPackage.size === 0) {
-    console.log(
-      anyPackageChange
-        ? "No releasable package change in this range. Nothing to do."
-        : "No feat or fix commit touching a package in this range. Nothing to do.",
-    );
+    console.log("No feat or fix commit touching a package in this range. Nothing to do.");
     setOutput("created", "false");
     return;
   }

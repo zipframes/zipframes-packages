@@ -16,7 +16,7 @@ zipframes-packages/
 └── .changeset/
 ```
 
-Cada pacote é publicável de forma independente, com sua própria versão, seu próprio `package.json` e seu próprio README. Um pacote pode depender de outro deste repositório, desde que a dependência aponte para o centro: `core` e `value-objects` não dependem de ninguém, e os demais podem depender deles.
+Cada pacote é publicável de forma independente, com sua própria versão, seu próprio `package.json` e seu próprio README. Um pacote pode depender de outro deste repositório, desde que a dependência aponte para o centro. Só o `core` não depende de outro pacote. `value-objects` depende do `core`. `logger` e `test-toolkit` não dependem de pacote interno.
 
 ```mermaid
 flowchart BT
@@ -31,11 +31,9 @@ flowchart BT
 
   vo --> core
   schemas --> core
-  comm --> core
   comm --> schemas
   auth --> core
   telemetry --> core
-  logger --> core
 ```
 
 ## Pacotes
@@ -50,8 +48,7 @@ src/
 └── services/
     ├── auth-service/
     ├── video-service/
-    ├── processor-worker/
-    └── notification-service/
+    └── processor-worker/
 ```
 
 Cada pasta de serviço traz os schemas dos eventos que aquele serviço publica e dos endpoints que ele expõe. Quem consome importa o schema do serviço publicador, o que deixa claro no import quem é o dono do contrato.
@@ -81,10 +78,12 @@ Só entra o que é universal. O contrato da base está em [value-objects.md](val
 src/
 ├── result/          # Result, ok, err e combinadores
 ├── branded/         # branded types
-└── errors/          # erros base de domínio e de aplicação
+├── errors/          # erros base de domínio e de aplicação
+├── readiness/       # Pingable e createReadinessCheck
+└── http/            # Problem Details e problemResponse
 ```
 
-Nenhuma dependência externa. É o único pacote, junto com `value-objects`, que a camada de domínio dos serviços pode importar.
+Nenhuma dependência externa. `result`, `branded` e `errors` são o que a camada de domínio dos serviços pode importar, junto com `value-objects`. `readiness` e `http` são adaptadores compartilhados: não entram no domínio.
 
 ### `communication`
 
@@ -96,7 +95,7 @@ src/
 └── topology/        # declaração de exchanges, filas e bindings
 ```
 
-Encapsula o broker atrás de interfaces. Nenhum serviço importa `amqplib` diretamente.
+Encapsula o broker atrás de interfaces. O pacote não abre a conexão. Os serviços implementam `PublishPort` e o consumo com `amqplib` nos próprios adapters.
 
 ### `logger`
 
@@ -128,7 +127,7 @@ Verifica quem é o usuário. Não emite tokens, que é papel do auth-service, e 
 
 ```
 src/
-└── containers/      # containers de PostgreSQL, RabbitMQ, Redis e storage
+└── containers/      # PostgreSQL, RabbitMQ, Redis e SeaweedFS (S3)
 ```
 
 Não depende dos outros pacotes. É sempre uma `devDependency` nos serviços.

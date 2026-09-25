@@ -7,17 +7,21 @@ Tipos e utilitários de domínio sem dependência externa nenhuma.
 - `Result`, com `ok`, `err` e combinadores
 - branded types
 - erros base, separados por origem (`domain`, `application`, `infrastructure`) e os erros semânticos comuns a qualquer serviço
+- readiness (`Pingable`, `createReadinessCheck`)
+- o envelope HTTP de Problem Details (`problemDetails`, `problemResponse`)
 
 ## Estrutura
 
 ```
 src/branded
 src/errors
+src/http
+src/readiness
 src/result
 test
 ```
 
-Junto com `value-objects`, é o único pacote que a camada de domínio dos serviços pode importar.
+`result`, `branded` e `errors` são o que a camada de domínio pode importar, junto com `value-objects`. `readiness` e `http` ficam na borda.
 
 ## Import
 
@@ -29,6 +33,8 @@ import { ok, err, DomainError } from "@zipframes/core";
 import { ok, err } from "@zipframes/core/result";
 import { DomainError } from "@zipframes/core/errors";
 import { brand } from "@zipframes/core/branded";
+import { problemResponse } from "@zipframes/core/http";
+import { createReadinessCheck } from "@zipframes/core/readiness";
 ```
 
 As duas formas entregam a mesma implementação.
@@ -47,4 +53,4 @@ As duas formas entregam a mesma implementação.
 
 Os erros de infraestrutura têm `retryable`, que por padrão é `true`. É por ele que o consumer decide entre reenfileirar a mensagem e mandá-la para a DLQ, sem inspecionar a classe.
 
-Nada aqui conhece HTTP. Mapear um erro para status é trabalho do adapter, na camada de apresentação. Por isso não existe `InternalServerError`: uma falha inesperada é `InfrastructureError` ou uma exceção que ninguém tratou.
+Nenhum erro carrega status HTTP. Escolher o status continua sendo trabalho do adapter. `http/` só empacota um status já decidido: `PROBLEM_CONTENT_TYPE`, o corpo RFC 9457 (`problemDetails`) e o envelope de resposta (`problemResponse`). Não existe `InternalServerError`: uma falha inesperada é `InfrastructureError` ou uma exceção que ninguém tratou.

@@ -15,11 +15,15 @@
 # never misses a package a later commit touched. That file is committed
 # straight to the PR branch, so it merges into main with the rest of the PR
 # and the release workflow finds it already there. A PR that never earned a
-# changeset still gets one on main: release.yml versions every package that
-# push changed, including chore, refactor and test. A changeset added by
-# hand is never touched or duplicated.
+# changeset does not get one on main either, unless a feat or fix touched a
+# package. A changeset added by hand is never touched or duplicated.
 #
-# This feat/fix gate applies only to pushes on an open pull request.
+# `changeset version --snapshot` also rewrites dependents whose range cannot
+# accept the new version. Those packages did not change. Before publish, the
+# workflow restores their manifests, so the dist-tag only moves for packages
+# named in the changeset.
+#
+# This feat/fix gate applies to an open pull request and to main.
 #
 # The snapshot version looks like 0.1.0-pr7-20260101120000: the real next
 # version, the PR number, and a timestamp. It publishes under the `pr7`
@@ -150,30 +154,21 @@ jobs:
         if: steps.gate.outputs.should-release == 'true'
         run: pnpm turbo run build --filter=./packages/*
 
-      - name: Read what will be released
-        if: steps.gate.outputs.should-release == 'true'
-        id: status
-        run: pnpm exec changeset status --output=status.json
-
       - name: Version as a snapshot
         if: steps.gate.outputs.should-release == 'true'
         run: pnpm exec changeset version --snapshot pr${{ github.event.pull_request.number }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Keep the snapshot limited to packages the changeset names
+        if: steps.gate.outputs.should-release == 'true'
+        run: node .github/scripts/changeset-packages.mjs --restore-others
+
       - name: Publish snapshot
         if: steps.gate.outputs.should-release == 'true'
         run: |
           pnpm exec changeset publish --tag pr${{ github.event.pull_request.number }}
-          node -e '
-            const { releases } = require("./status.json");
-            const fs = require("fs");
-            const lines = releases.map((r) => {
-              const pkg = require(`./packages/${r.name.replace("@zipframes/", "")}/package.json`);
-              return `- \`${r.name}@${pkg.version}\``;
-            });
-            fs.writeFileSync("snapshot-summary.md", lines.join("\n"));
-          '
+          node .github/scripts/changeset-packages.mjs --summary > snapshot-summary.md
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
