@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createReadinessCheck } from "../src/readiness/index.js";
+import * as pingable from "../src/readiness/pingable.js";
 import { PROBLEM_CONTENT_TYPE, problemDetails } from "../src/http/index.js";
 import { ApplicationError, InfrastructureError, isRetryableError } from "../src/errors/index.js";
 
@@ -34,6 +35,22 @@ describe("createReadinessCheck", () => {
       reason: "amqp disconnected",
     });
   });
+
+  it("uses unknown when a check rejects with a non-error", async () => {
+    const check = createReadinessCheck([
+      {
+        ping: async () => {
+          throw "down";
+        },
+      },
+    ]);
+
+    await expect(check()).resolves.toEqual({ ready: false, reason: "unknown" });
+  });
+
+  it("exports Pingable as a type with no runtime value", () => {
+    expect(Object.keys(pingable)).toEqual([]);
+  });
 });
 
 describe("problemDetails", () => {
@@ -46,6 +63,14 @@ describe("problemDetails", () => {
       correlationId: "corr-1",
     });
     expect(PROBLEM_CONTENT_TYPE).toBe("application/problem+json");
+  });
+
+  it("omits detail and correlationId when they are absent", () => {
+    expect(problemDetails(503, "Unavailable")).toEqual({
+      type: "about:blank",
+      status: 503,
+      title: "Unavailable",
+    });
   });
 });
 
