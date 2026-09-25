@@ -1,5 +1,11 @@
 # @zipframes/test-toolkit
 
+## 0.2.1
+
+### Patch Changes
+
+- [#33](https://github.com/zipframes/zipframes-packages/pull/33) [`6ce1836`](https://github.com/zipframes/zipframes-packages/commit/6ce183621a739a9afd12bae373693c508e24ddc7) Thanks [@knzt](https://github.com/knzt)! - - fix(test-toolkit): start SeaweedFS instead of a dead MinIO image
+
 ## 0.2.0
 
 ### Minor Changes
