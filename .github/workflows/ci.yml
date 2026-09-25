@@ -37,5 +37,8 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Test changeset helper
+        run: node --test .github/scripts/changeset-packages.test.mjs
+
       - name: Test with coverage
         run: pnpm test:coverage

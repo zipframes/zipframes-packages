@@ -1,16 +1,15 @@
 # Version and publish the @zipframes/* packages.
 #
 # On every push to main:
-#   - if this push carries no changeset yet, one is generated for every
-#     package the push changed (.github/scripts/generate-changeset.mjs
-#     --any-package-change) and committed straight to main. feat stays
-#     minor, fix stays patch, and a breaking marker stays major. chore,
-#     refactor, test and any other commit that touches a package still get
-#     a patch. A changeset added by hand in the merged PR always wins: this
-#     step only runs when none is found. The "chore: version packages"
-#     commit is ignored, so merging the Version Packages PR does not open
-#     another one. Pushing with the default GITHUB_TOKEN does not trigger
-#     another workflow run, so committing the changeset cannot loop.
+#   - if this push carries no changeset yet, one is generated from its feat
+#     and fix commits (.github/scripts/generate-changeset.mjs) and committed
+#     straight to main. A changeset added by hand in the merged PR always
+#     wins: this step only runs when none is found. chore, refactor, test
+#     and docs do not open a version on their own. The "chore: version
+#     packages" commit is not a feat or a fix, so merging the Version
+#     Packages PR does not open another one. Pushing with the default
+#     GITHUB_TOKEN does not trigger another workflow run, so committing the
+#     changeset cannot loop.
 #   - changesets/action then checks for pending changesets:
 #       - if there are any, it opens or updates a "Version Packages" PR with
 #         the computed versions and changelog;
@@ -18,11 +17,10 @@
 #         changesets, and publishes the versions it just merged to GitHub
 #         Packages instead.
 #
-# The feat/fix gate lives only in the prerelease workflow, on pushes to an
-# open pull request. A merge to main always versions the packages it
-# changed. For a feat/fix PR the changeset is usually already on the branch,
-# so this fallback does not run. It does run for chore, refactor and test,
-# and for anything else that reaches main without a changeset.
+# The same feat/fix gate is used on main and on an open pull request. A
+# merge that already brought a changeset does not generate another one.
+# Something that reaches main without a changeset — a direct push, for
+# example — gets one only when a feat or fix commit touched a package.
 name: release
 
 on:
@@ -74,7 +72,7 @@ jobs:
           if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
             before="HEAD~1"
           fi
-          node .github/scripts/generate-changeset.mjs --from "$before" --to "${{ github.sha }}" --any-package-change
+          node .github/scripts/generate-changeset.mjs --from "$before" --to "${{ github.sha }}"
 
       - name: Commit the generated changeset
         if: steps.generated.outputs.created == 'true'
