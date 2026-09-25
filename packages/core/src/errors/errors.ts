@@ -62,3 +62,17 @@ export class TimeoutError extends InfrastructureError {}
 
 /** A dependency is unreachable or refusing work. Retryable by default. */
 export class UnavailableError extends InfrastructureError {}
+
+/**
+ * An unexpected failure inside the service or one of its dependencies.
+ * Not retryable by default; adapters map it to HTTP 500 without leaking details.
+ */
+export class InternalServerError extends InfrastructureError {
+  constructor(
+    code: string,
+    message: string,
+    options: BaseErrorOptions & { readonly retryable?: boolean } = {},
+  ) {
+    super(code, message, { ...options, retryable: options.retryable ?? false });
+  }
+}

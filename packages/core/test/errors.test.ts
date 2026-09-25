@@ -7,6 +7,7 @@ import {
   DomainError,
   ForbiddenError,
   InfrastructureError,
+  InternalServerError,
   isBaseError,
   NotFoundError,
   TimeoutError,
@@ -131,6 +132,7 @@ describe("semantic errors", () => {
     expect(new ForbiddenError("NOT_ALLOWED", "not allowed").kind).toBe("application");
     expect(new TimeoutError("FFMPEG_TIMEOUT", "ffmpeg timed out").kind).toBe("infrastructure");
     expect(new UnavailableError("BROKER_DOWN", "broker unavailable").kind).toBe("infrastructure");
+    expect(new InternalServerError("UNEXPECTED", "unexpected failure").kind).toBe("infrastructure");
   });
 
   it("keeps the inheritance chain", () => {
@@ -138,11 +140,13 @@ describe("semantic errors", () => {
     expect(new NotFoundError("B", "b")).toBeInstanceOf(ApplicationError);
     expect(new TimeoutError("C", "c")).toBeInstanceOf(InfrastructureError);
     expect(new UnavailableError("D", "d")).toBeInstanceOf(BaseError);
+    expect(new InternalServerError("E", "e")).toBeInstanceOf(InfrastructureError);
   });
 
   it("names each error after its own class", () => {
     expect(new NotFoundError("A", "a").name).toBe("NotFoundError");
     expect(new TimeoutError("B", "b").name).toBe("TimeoutError");
+    expect(new InternalServerError("C", "c").name).toBe("InternalServerError");
   });
 });
 
@@ -151,6 +155,7 @@ describe("retryable", () => {
     expect(new InfrastructureError("A", "a").retryable).toBe(true);
     expect(new TimeoutError("B", "b").retryable).toBe(true);
     expect(new UnavailableError("C", "c").retryable).toBe(true);
+    expect(new InternalServerError("D", "d").retryable).toBe(false);
   });
 
   it("can be turned off for a permanent failure", () => {

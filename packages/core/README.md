@@ -41,16 +41,17 @@ As duas formas entregam a mesma implementação.
 
 ## Erros
 
-| Classe              | Origem           | Quando                                              |
-| ------------------- | ---------------- | --------------------------------------------------- |
-| `ValidationError`   | `domain`         | Formato ou invariante violada                       |
-| `NotFoundError`     | `application`    | O recurso não existe, ou não existe para quem pediu |
-| `ConflictError`     | `application`    | Choque com o estado atual                           |
-| `UnauthorizedError` | `application`    | Sem identidade válida                               |
-| `ForbiddenError`    | `application`    | Identidade válida, sem permissão                    |
-| `TimeoutError`      | `infrastructure` | Prazo estourado                                     |
-| `UnavailableError`  | `infrastructure` | Dependência fora do ar                              |
+| Classe                | Origem           | Quando                                              |
+| --------------------- | ---------------- | --------------------------------------------------- |
+| `ValidationError`     | `domain`         | Formato ou invariante violada                       |
+| `NotFoundError`       | `application`    | O recurso não existe, ou não existe para quem pediu |
+| `ConflictError`       | `application`    | Choque com o estado atual                           |
+| `UnauthorizedError`   | `application`    | Sem identidade válida                               |
+| `ForbiddenError`      | `application`    | Identidade válida, sem permissão                    |
+| `TimeoutError`        | `infrastructure` | Prazo estourado                                     |
+| `UnavailableError`    | `infrastructure` | Dependência fora do ar                              |
+| `InternalServerError` | `infrastructure` | Falha inesperada no serviço ou em dependência       |
 
-Os erros de infraestrutura têm `retryable`, que por padrão é `true`. É por ele que o consumer decide entre reenfileirar a mensagem e mandá-la para a DLQ, sem inspecionar a classe.
+Os erros de infraestrutura têm `retryable`. Em `TimeoutError` e `UnavailableError` o padrão é `true`; em `InternalServerError` é `false`. É por `retryable` que o consumer decide entre reenfileirar a mensagem e mandá-la para a DLQ, sem inspecionar a classe.
 
-Nenhum erro carrega status HTTP. Escolher o status continua sendo trabalho do adapter. `http/` só empacota um status já decidido: `PROBLEM_CONTENT_TYPE`, o corpo RFC 9457 (`problemDetails`) e o envelope de resposta (`problemResponse`). Não existe `InternalServerError`: uma falha inesperada é `InfrastructureError` ou uma exceção que ninguém tratou.
+Nenhum erro carrega status HTTP. Escolher o status continua sendo trabalho do adapter. `http/` só empacota um status já decidido: `PROBLEM_CONTENT_TYPE`, o corpo RFC 9457 (`problemDetails`) e o envelope de resposta (`problemResponse`).

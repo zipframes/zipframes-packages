@@ -4,7 +4,12 @@ import { createReadinessCheck } from "../src/readiness/index.js";
 import * as pingable from "../src/readiness/pingable.js";
 import { PROBLEM_CONTENT_TYPE, problemDetails, problemResponse } from "../src/http/index.js";
 import type { ProblemDetails } from "../src/http/index.js";
-import { ApplicationError, InfrastructureError, isRetryableError } from "../src/errors/index.js";
+import {
+  ApplicationError,
+  InfrastructureError,
+  InternalServerError,
+  isRetryableError,
+} from "../src/errors/index.js";
 
 describe("createReadinessCheck", () => {
   it("returns ready when every check succeeds", async () => {
@@ -118,6 +123,7 @@ describe("isRetryableError", () => {
   it("reads retryable from InfrastructureError", () => {
     expect(isRetryableError(new InfrastructureError("X", "y", { retryable: false }))).toBe(false);
     expect(isRetryableError(new InfrastructureError("X", "y"))).toBe(true);
+    expect(isRetryableError(new InternalServerError("X", "y"))).toBe(false);
   });
 
   it("treats other BaseErrors as not retryable and unknowns as retryable", () => {

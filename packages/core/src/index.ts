@@ -30,6 +30,7 @@ export {
   ForbiddenError,
   TimeoutError,
   UnavailableError,
+  InternalServerError,
   isRetryableError,
 } from "./errors/index.js";
 
