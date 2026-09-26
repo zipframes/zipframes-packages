@@ -5,4 +5,4 @@ export type {
   HandlerContext,
   HttpReply,
   HttpRequest,
-} from "./define-handler.js";
+} from "./types.js";
