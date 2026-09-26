@@ -1,15 +1,17 @@
 # @zipframes/http
 
-`defineHandler` para controllers HTTP sem Fastify, AWS ou middy.
+`defineHandler` e `defineAuthenticatedHandler` para controllers HTTP sem Fastify, AWS ou middy.
 
 ## O que é
 
 - validação de entrada e saída com Zod (mesmo contrato de `parseSchema`)
-- autenticação opcional via `@zipframes/authenticator` (Bearer JWT)
+- autenticação JWT via `@zipframes/authenticator` quando a rota exige (`defineAuthenticatedHandler`)
 - respostas de sucesso e problem+json usando `@zipframes/core`
 - `handler` devolve `Result` de `@zipframes/core`
 
 ## Uso
+
+Rotas públicas (sem JWT):
 
 ```ts
 import { defineHandler } from "@zipframes/http";
@@ -27,13 +29,14 @@ export const register = defineHandler({
 });
 ```
 
-Com authenticator, o handler recebe `ctx.claims` (`VerifiedClaims`, `sub` = user id):
+Rotas autenticadas (`ctx.claims`, `sub` = user id):
 
 ```ts
 import { createAuthenticator } from "@zipframes/authenticator";
+import { defineAuthenticatedHandler } from "@zipframes/http";
 import { ok } from "@zipframes/core/result";
 
-export const listVideos = defineHandler({
+export const listVideos = defineAuthenticatedHandler({
   inputSchema: z.object({}),
   outputSchema: z.array(z.object({ id: z.string() })),
   successStatus: 200,

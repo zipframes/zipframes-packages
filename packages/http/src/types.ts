@@ -33,16 +33,15 @@ export type BaseHandlerConfig<TInput, TOutput, TStatus extends number> = {
   readonly errorHelper?: ErrorHelper;
 };
 
-export type HandlerConfigWithoutAuth<TInput, TOutput, TStatus extends number> = BaseHandlerConfig<
+export type HandlerConfig<TInput, TOutput, TStatus extends number> = BaseHandlerConfig<
   TInput,
   TOutput,
   TStatus
 > & {
-  readonly authenticator?: undefined;
   readonly handler: (input: TInput, ctx: HandlerContext) => Promise<Result<TOutput, BaseError>>;
 };
 
-export type HandlerConfigWithAuth<TInput, TOutput, TStatus extends number> = BaseHandlerConfig<
+export type AuthenticatedHandlerConfig<TInput, TOutput, TStatus extends number> = BaseHandlerConfig<
   TInput,
   TOutput,
   TStatus

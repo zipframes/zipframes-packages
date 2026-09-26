@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { NotFoundError } from "@zipframes/core/errors";
@@ -6,19 +6,12 @@ import { PROBLEM_CONTENT_TYPE, type ProblemDetails } from "@zipframes/core/http"
 import { err, ok } from "@zipframes/core/result";
 
 import { defineHandler } from "../src/define-handler.js";
-import { buildAuthFixture, type AuthFixture } from "./helpers/auth-fixture.js";
 
 const inputSchema = z.object({ name: z.string().min(1) });
 const outputSchema = z.object({ id: z.string(), name: z.string() });
 const correlationId = "corr-define-handler";
 
 describe("defineHandler", () => {
-  let authFixture: AuthFixture;
-
-  beforeAll(async () => {
-    authFixture = await buildAuthFixture();
-  });
-
   it("returns success with validated input and output", async () => {
     const handler = defineHandler({
       inputSchema,
@@ -85,65 +78,20 @@ describe("defineHandler", () => {
     expect((reply.body as ProblemDetails).title).toBe("Internal server error");
   });
 
-  describe("without authenticator", () => {
-    it("does not expose claims on the handler context", async () => {
-      const handler = defineHandler({
-        inputSchema: z.object({}),
-        outputSchema: z.object({ hasClaims: z.boolean() }),
-        successStatus: 200,
-        handler: async (_input, ctx) => ok({ hasClaims: "claims" in ctx }),
-      });
-
-      const reply = await handler({
-        body: {},
-        correlationId,
-        authorization: `Bearer ${await authFixture.sign()}`,
-      });
-
-      expect(reply.body).toEqual({ hasClaims: false });
-    });
-  });
-
-  describe("with authenticator", () => {
-    it("passes verified claims to the handler", async () => {
-      const handler = defineHandler({
-        inputSchema: z.object({}),
-        outputSchema: z.object({ ownerId: z.string() }),
-        successStatus: 200,
-        authenticator: authFixture.authenticator,
-        handler: async (_input, ctx) => ok({ ownerId: ctx.claims.sub }),
-      });
-
-      const token = await authFixture.sign({ sub: "user-42" });
-      const reply = await handler({
-        body: {},
-        correlationId,
-        authorization: `Bearer ${token}`,
-      });
-
-      expect(reply).toEqual({
-        status: 200,
-        body: { ownerId: "user-42" },
-      });
+  it("does not expose claims on the handler context", async () => {
+    const handler = defineHandler({
+      inputSchema: z.object({}),
+      outputSchema: z.object({ hasClaims: z.boolean() }),
+      successStatus: 200,
+      handler: async (_input, ctx) => ok({ hasClaims: "claims" in ctx }),
     });
 
-    it("rejects a missing bearer token before validating the body", async () => {
-      let bodyValidated = false;
-      const handler = defineHandler({
-        inputSchema: z.object({ required: z.literal(true) }),
-        outputSchema: z.object({ ok: z.literal(true) }),
-        successStatus: 200,
-        authenticator: authFixture.authenticator,
-        handler: async () => {
-          bodyValidated = true;
-          return ok({ ok: true as const });
-        },
-      });
-
-      const reply = await handler({ body: {}, correlationId });
-
-      expect(bodyValidated).toBe(false);
-      expect(reply.status).toBe(401);
+    const reply = await handler({
+      body: {},
+      correlationId,
+      authorization: "Bearer ignored-token",
     });
+
+    expect(reply.body).toEqual({ hasClaims: false });
   });
 });

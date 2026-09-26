@@ -8,9 +8,9 @@ import { executeHandler } from "./execute-handler.js";
 import { internalServerErrorReply, resolveError } from "./map-error.js";
 import { parseSchema } from "./parse-schema.js";
 import type {
+  AuthenticatedHandlerConfig,
   ErrorHelper,
-  HandlerConfigWithAuth,
-  HandlerConfigWithoutAuth,
+  HandlerConfig,
   HandlerContext,
   HttpReply,
   HttpRequest,
@@ -60,8 +60,8 @@ const handleValidatedPipeline = async <
   return buildSuccessReply(config.successStatus, outputResult.value);
 };
 
-const composePublicHandler = <TInput, TOutput, TStatus extends number>(
-  config: HandlerConfigWithoutAuth<TInput, TOutput, TStatus>,
+export const defineHandler = <TInput, TOutput, TStatus extends number>(
+  config: HandlerConfig<TInput, TOutput, TStatus>,
 ): ((request: HttpRequest) => Promise<HttpReply>) => {
   return (request) => {
     const ctx: HandlerContext = { correlationId: request.correlationId };
@@ -69,8 +69,8 @@ const composePublicHandler = <TInput, TOutput, TStatus extends number>(
   };
 };
 
-const composeAuthenticatedHandler = <TInput, TOutput, TStatus extends number>(
-  config: HandlerConfigWithAuth<TInput, TOutput, TStatus>,
+export const defineAuthenticatedHandler = <TInput, TOutput, TStatus extends number>(
+  config: AuthenticatedHandlerConfig<TInput, TOutput, TStatus>,
 ): ((request: HttpRequest) => Promise<HttpReply>) => {
   return async (request) => {
     const ctx: HandlerContext = { correlationId: request.correlationId };
@@ -88,29 +88,3 @@ const composeAuthenticatedHandler = <TInput, TOutput, TStatus extends number>(
     return handleValidatedPipeline(config, request, authentication.context);
   };
 };
-
-export function defineHandler<TInput, TOutput, TStatus extends number>(
-  config: HandlerConfigWithAuth<TInput, TOutput, TStatus>,
-): (request: HttpRequest) => Promise<HttpReply>;
-export function defineHandler<TInput, TOutput, TStatus extends number>(
-  config: HandlerConfigWithoutAuth<TInput, TOutput, TStatus>,
-): (request: HttpRequest) => Promise<HttpReply>;
-export function defineHandler<TInput, TOutput, TStatus extends number>(
-  config:
-    | HandlerConfigWithoutAuth<TInput, TOutput, TStatus>
-    | HandlerConfigWithAuth<TInput, TOutput, TStatus>,
-): (request: HttpRequest) => Promise<HttpReply> {
-  if (config.authenticator !== undefined) {
-    return composeAuthenticatedHandler(config);
-  }
-
-  return composePublicHandler(config);
-}
-
-export type {
-  AuthenticatedHandlerContext,
-  ErrorHelper,
-  HandlerContext,
-  HttpReply,
-  HttpRequest,
-} from "./types.js";
