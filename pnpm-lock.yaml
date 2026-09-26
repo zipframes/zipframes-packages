@@ -98,6 +98,34 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@26.6.1)(jiti@2.6.1)(yaml@2.9.1)
 
+  packages/http:
+    dependencies:
+      '@zipframes/authenticator':
+        specifier: workspace:^
+        version: link:../authenticator
+      '@zipframes/core':
+        specifier: workspace:^
+        version: link:../core
+      '@zipframes/schemas':
+        specifier: workspace:^
+        version: link:../schemas
+      zod:
+        specifier: ^4.1.5
+        version: 4.6.5
+    devDependencies:
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.13.6
+      '@vitest/coverage-v8':
+        specifier: ^3.2.4
+        version: 3.2.7(vitest@3.2.7(@types/node@24.13.6)(jiti@2.6.1)(yaml@2.9.1))
+      jose:
+        specifier: ^6.0.12
+        version: 6.2.12
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@24.13.6)(jiti@2.6.1)(yaml@2.9.1)
+
   packages/logger:
     dependencies:
       pino:

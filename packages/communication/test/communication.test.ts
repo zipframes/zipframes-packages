@@ -223,12 +223,12 @@ describe("publisher and consumer over RabbitMQ", () => {
   });
 
   afterEach(async () => {
-    await port.reset();
+    await port?.reset();
   });
 
   afterAll(async () => {
-    await port.close();
-    await rabbit.stop();
+    await port?.close();
+    await rabbit?.stop();
   });
 
   it("routes published events to bound queues", async () => {
