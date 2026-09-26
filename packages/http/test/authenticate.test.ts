@@ -37,6 +37,15 @@ describe("authenticate", () => {
     }
   });
 
+  it("returns a reply when the bearer value is empty", async () => {
+    const result = await authenticate("Bearer ", authFixture.authenticator, { correlationId });
+
+    expect(result.kind).toBe("reply");
+    if (result.kind === "reply") {
+      expect(result.reply.status).toBe(401);
+    }
+  });
+
   it("returns a reply when token verification fails", async () => {
     const result = await authenticate("Bearer not-a-jwt", authFixture.authenticator, {
       correlationId,

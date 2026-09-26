@@ -1,7 +1,7 @@
 import type { Authenticator } from "@zipframes/authenticator";
+import { UnauthorizedError } from "@zipframes/core/errors";
 import { isErr } from "@zipframes/core/result";
 
-import { parseBearerToken } from "./parse-bearer.js";
 import { resolveError } from "./map-error.js";
 import type {
   AuthenticatedHandlerContext,
@@ -20,12 +20,20 @@ export const authenticate = async (
   ctx: HandlerContext,
   errorHelper?: ErrorHelper,
 ): Promise<AuthenticationResult> => {
-  const tokenResult = parseBearerToken(authorization);
-  if (isErr(tokenResult)) {
-    return { kind: "reply", reply: resolveError(tokenResult.error, ctx, errorHelper) };
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    return {
+      kind: "reply",
+      reply: resolveError(
+        new UnauthorizedError("AUTH_MISSING_TOKEN", "authorization header is missing"),
+        ctx,
+        errorHelper,
+      ),
+    };
   }
 
-  const verifyResult = await authenticator.verify(tokenResult.value);
+  const verifyResult = await authenticator.verify(token);
   if (isErr(verifyResult)) {
     return { kind: "reply", reply: resolveError(verifyResult.error, ctx, errorHelper) };
   }
