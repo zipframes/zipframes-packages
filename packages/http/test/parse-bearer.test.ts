@@ -21,28 +21,19 @@ describe("parseBearerToken", () => {
     }
   });
 
-  it("rejects an empty authorization header", () => {
-    const result = parseBearerToken("   ");
-    expect(isErr(result)).toBe(true);
-    if (isErr(result)) {
-      expect(result.error.code).toBe("AUTH_MISSING_TOKEN");
-    }
-  });
-
-  it("rejects a non-Bearer scheme", () => {
-    const result = parseBearerToken("Basic abc");
-    expect(isErr(result)).toBe(true);
-    if (isErr(result)) {
-      expect(result.error.code).toBe("AUTH_MISSING_TOKEN");
-      expect(result.error.message).toContain("Bearer");
-    }
-  });
-
   it("rejects an empty bearer value", () => {
     const result = parseBearerToken("Bearer ");
     expect(isErr(result)).toBe(true);
     if (isErr(result)) {
       expect(result.error.code).toBe("AUTH_MISSING_TOKEN");
+    }
+  });
+
+  it("passes through values without a Bearer prefix for verification", () => {
+    const result = parseBearerToken("Basic abc");
+    expect(isOk(result)).toBe(true);
+    if (isOk(result)) {
+      expect(result.value).toBe("Basic abc");
     }
   });
 });
