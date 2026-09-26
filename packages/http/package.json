@@ -29,6 +29,7 @@
   "dependencies": {
     "@zipframes/authenticator": "workspace:^",
     "@zipframes/core": "workspace:^",
+    "@zipframes/schemas": "workspace:^",
     "zod": "^4.1.5"
   },
   "devDependencies": {
