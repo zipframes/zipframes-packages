@@ -2,7 +2,7 @@ import type { BaseError } from "@zipframes/core/errors";
 import { isErr } from "@zipframes/core/result";
 import type { Result } from "@zipframes/core/result";
 
-import { mapThrownValue, resolveError } from "./map-error.js";
+import { mapThrownValue, resolveError } from "./errorHelper.js";
 import type { ErrorHelper, HandlerContext, HttpReply } from "./types.js";
 
 export type HandlerExecutionResult<TOutput> =

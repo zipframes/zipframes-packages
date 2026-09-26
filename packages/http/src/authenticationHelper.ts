@@ -2,7 +2,7 @@ import type { Authenticator } from "@zipframes/authenticator";
 import { UnauthorizedError } from "@zipframes/core/errors";
 import { isErr } from "@zipframes/core/result";
 
-import { resolveError } from "./map-error.js";
+import { resolveError } from "./errorHelper.js";
 import type {
   AuthenticatedHandlerContext,
   ErrorHelper,

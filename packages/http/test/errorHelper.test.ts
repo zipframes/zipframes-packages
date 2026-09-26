@@ -8,9 +8,9 @@ import {
   internalServerErrorReply,
   mapThrownValue,
   resolveError,
-} from "../src/map-error.js";
+} from "../src/errorHelper.js";
 
-const ctx = { correlationId: "corr-map-error" };
+const ctx = { correlationId: "corr-error-helper" };
 
 describe("defaultErrorHelper", () => {
   it("maps BaseError to problem+json with status and message", () => {

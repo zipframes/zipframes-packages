@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { UnauthorizedError } from "@zipframes/core/errors";
 import { isErr } from "@zipframes/core/result";
 
-import { authenticate } from "../src/authenticate.js";
+import { authenticate } from "../src/authenticationHelper.js";
 import { buildAuthFixture, type AuthFixture } from "./helpers/auth-fixture.js";
 
 const correlationId = "corr-auth";

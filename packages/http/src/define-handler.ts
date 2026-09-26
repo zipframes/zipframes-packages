@@ -3,9 +3,9 @@ import { isErr } from "@zipframes/core/result";
 import type { Result } from "@zipframes/core/result";
 import type { z } from "zod";
 
-import { authenticate } from "./authenticate.js";
+import { authenticate } from "./authenticationHelper.js";
 import { executeHandler } from "./execute-handler.js";
-import { internalServerErrorReply, resolveError } from "./map-error.js";
+import { internalServerErrorReply, resolveError } from "./errorHelper.js";
 import { parseSchema } from "@zipframes/schemas";
 import type {
   AuthenticatedHandlerConfig,
