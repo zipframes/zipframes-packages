@@ -8,6 +8,11 @@ export {
   confirmUploadResponseSchema,
   videoListItemSchema,
   listVideosResponseSchema,
+  videoIdParamsSchema,
+  listVideosQuerySchema,
+  getVideoResponseSchema,
+  DEFAULT_VIDEO_PAGE_SIZE,
+  MAX_VIDEO_PAGE_SIZE,
   downloadResponseSchema,
 } from "./http.js";
 export type {
@@ -17,5 +22,8 @@ export type {
   ConfirmUploadResponse,
   VideoListItem,
   ListVideosResponse,
+  VideoIdParams,
+  ListVideosQuery,
+  GetVideoResponse,
   DownloadResponse,
 } from "./http.js";
