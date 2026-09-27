@@ -3,9 +3,7 @@ export type { VideoUploadedPayload, VideoUploadedEvent } from "./events.js";
 
 export {
   videoStatusSchema,
-  requestUploadRequestSchema,
-  requestUploadResponseSchema,
-  confirmUploadResponseSchema,
+  uploadVideoResponseSchema,
   videoListItemSchema,
   listVideosResponseSchema,
   videoIdParamsSchema,
@@ -17,9 +15,7 @@ export {
 } from "./http.js";
 export type {
   VideoStatus,
-  RequestUploadRequest,
-  RequestUploadResponse,
-  ConfirmUploadResponse,
+  UploadVideoResponse,
   VideoListItem,
   ListVideosResponse,
   VideoIdParams,

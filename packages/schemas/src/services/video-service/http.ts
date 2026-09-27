@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const videoStatusSchema = z.enum([
-  "AWAITING_UPLOAD",
   "QUEUED",
   "PROCESSING",
   "DONE",
@@ -10,21 +9,12 @@ export const videoStatusSchema = z.enum([
   "DELETED",
 ]);
 
-export const requestUploadRequestSchema = z.object({
-  originalFileName: z.string().min(1),
-  contentType: z.string().min(1),
-  sizeBytes: z.number().int().positive(),
-});
-
-export const requestUploadResponseSchema = z.object({
-  videoId: z.string().uuid(),
-  uploadUrl: z.string().url(),
-  sourceKey: z.string().min(1),
-  expiresInSeconds: z.number().int().positive(),
-});
-
-export const confirmUploadResponseSchema = z.object({
-  videoId: z.string().uuid(),
+/**
+ * Answer of `POST /videos`, which receives the file as multipart/form-data
+ * (one `file` field) and queues it for processing in the same request.
+ */
+export const uploadVideoResponseSchema = z.object({
+  videoId: z.uuid(),
   status: z.literal("QUEUED"),
 });
 
@@ -70,9 +60,7 @@ export const downloadResponseSchema = z.object({
 });
 
 export type VideoStatus = z.infer<typeof videoStatusSchema>;
-export type RequestUploadRequest = z.infer<typeof requestUploadRequestSchema>;
-export type RequestUploadResponse = z.infer<typeof requestUploadResponseSchema>;
-export type ConfirmUploadResponse = z.infer<typeof confirmUploadResponseSchema>;
+export type UploadVideoResponse = z.infer<typeof uploadVideoResponseSchema>;
 export type VideoListItem = z.infer<typeof videoListItemSchema>;
 export type ListVideosResponse = z.infer<typeof listVideosResponseSchema>;
 export type VideoIdParams = z.infer<typeof videoIdParamsSchema>;
