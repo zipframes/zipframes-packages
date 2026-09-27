@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { createReadinessCheck } from "../src/readiness/index.js";
 import * as pingable from "../src/readiness/pingable.js";
-import { PROBLEM_CONTENT_TYPE, problemDetails, problemResponse } from "../src/http/index.js";
+import {
+  PROBLEM_CONTENT_TYPE,
+  problemDetails,
+  problemDetailsJsonSchema,
+  problemDetailsSchema,
+  problemResponse,
+} from "../src/http/index.js";
 import type { ProblemDetails } from "../src/http/index.js";
 import {
   ApplicationError,
@@ -116,6 +122,30 @@ describe("problemResponse", () => {
 
     expect(conflict.status).toBe(409);
     expect(notFound.status).toBe(404);
+  });
+});
+
+describe("problemDetailsSchema", () => {
+  it("wraps the shared JSON schema in an OpenAPI response object", () => {
+    expect(problemDetailsSchema("Email already registered")).toEqual({
+      description: "Email already registered",
+      content: {
+        "application/problem+json": {
+          schema: problemDetailsJsonSchema,
+        },
+      },
+    });
+  });
+
+  it("requires type, title and status, and nothing else", () => {
+    expect(problemDetailsJsonSchema.required).toEqual(["type", "title", "status"]);
+    expect(Object.keys(problemDetailsJsonSchema.properties)).toEqual([
+      "type",
+      "title",
+      "status",
+      "detail",
+      "correlationId",
+    ]);
   });
 });
 
