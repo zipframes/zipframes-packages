@@ -20,8 +20,13 @@ import {
 } from "../src/services/processor-worker/index.js";
 import {
   confirmUploadResponseSchema,
+  DEFAULT_VIDEO_PAGE_SIZE,
   downloadResponseSchema,
+  getVideoResponseSchema,
+  listVideosQuerySchema,
   listVideosResponseSchema,
+  videoIdParamsSchema,
+  videoListItemSchema,
   requestUploadRequestSchema,
   requestUploadResponseSchema,
   videoUploadedEventSchema,
@@ -232,5 +237,34 @@ describe("video-service and processor-worker", () => {
         }),
       ),
     ).toBe(true);
+  });
+});
+
+describe("video-service route parameters", () => {
+  it("accepts a UUID video id and rejects anything else", () => {
+    expect(isOk(parseSchema(videoIdParamsSchema, { videoId }))).toBe(true);
+    expect(isErr(parseSchema(videoIdParamsSchema, { videoId: "abc" }))).toBe(true);
+    expect(isErr(parseSchema(videoIdParamsSchema, {}))).toBe(true);
+  });
+
+  it("defaults the page size and coerces it from the query string", () => {
+    expect(parseSchema(listVideosQuerySchema, {})).toEqual({
+      ok: true,
+      value: { limit: DEFAULT_VIDEO_PAGE_SIZE },
+    });
+    expect(
+      parseSchema(listVideosQuerySchema, { limit: "5", before: "2026-09-17T12:00:00.000Z" }),
+    ).toEqual({ ok: true, value: { limit: 5, before: "2026-09-17T12:00:00.000Z" } });
+  });
+
+  it.each([{ limit: "0" }, { limit: "101" }, { limit: "2.5" }, { before: "yesterday" }])(
+    "rejects the query %j",
+    (query) => {
+      expect(isErr(parseSchema(listVideosQuerySchema, query))).toBe(true);
+    },
+  );
+
+  it("answers GET /videos/{videoId} with a list item", () => {
+    expect(getVideoResponseSchema).toBe(videoListItemSchema);
   });
 });

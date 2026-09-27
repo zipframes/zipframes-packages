@@ -34,3 +34,16 @@ Quem consome importa do **serviço publicador**.
 | `video.processing.started` / `video.processed` / `video.failed` | processor-worker | ver `processor-worker`                                             |
 
 Exchange: `zipframes.events`.
+
+## HTTP do video-service
+
+| Rota                             | Entrada                                     | Resposta                      |
+| -------------------------------- | ------------------------------------------- | ----------------------------- |
+| `POST /videos`                   | `requestUploadRequestSchema`                | `requestUploadResponseSchema` |
+| `POST /videos/{videoId}/confirm` | `videoIdParamsSchema`                       | `confirmUploadResponseSchema` |
+| `GET /videos`                    | `listVideosQuerySchema` (`limit`, `before`) | `listVideosResponseSchema`    |
+| `GET /videos/{videoId}`          | `videoIdParamsSchema`                       | `getVideoResponseSchema`      |
+| `GET /videos/{videoId}/download` | `videoIdParamsSchema`                       | `downloadResponseSchema`      |
+| `DELETE /videos/{videoId}`       | `videoIdParamsSchema`                       | 204, sem corpo                |
+
+`listVideosQuerySchema` converte `limit` da query string (padrão 20, máximo 100). A próxima página usa `before` com o `createdAt` do último item recebido.
