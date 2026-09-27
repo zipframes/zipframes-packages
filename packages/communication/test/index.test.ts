@@ -11,6 +11,7 @@ describe("public package surface", () => {
         "createDefaultTopology",
         "createPublisher",
         "createConsumer",
+        "defineMessageHandler",
       ]),
     );
   });

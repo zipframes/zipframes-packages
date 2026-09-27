@@ -25,3 +25,12 @@ export type { PublishPort } from "./publisher/index.js";
 
 export { createConsumer } from "./consumer/index.js";
 export type { ConsumerOptions, MessageQueue } from "./consumer/index.js";
+
+export { defineMessageHandler } from "./handler/index.js";
+export type {
+  MessageContext,
+  MessageHandlerConfig,
+  MessageHandlerOptions,
+  MessageOutcome,
+  MessageOutcomeContext,
+} from "./handler/index.js";

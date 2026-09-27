@@ -2,9 +2,12 @@ import type { EventEnvelope } from "@zipframes/schemas/shared";
 
 export type MessageHeaders = Readonly<Record<string, string | undefined>>;
 
-/** Wire message: schemas envelope plus optional transport headers. */
-export type BrokerMessage<TPayload = unknown> = {
-  readonly envelope: EventEnvelope<TPayload>;
+/**
+ * Wire message as it arrives: the envelope is still unvalidated JSON.
+ * `defineMessageHandler` parses it against the event schema.
+ */
+export type BrokerMessage = {
+  readonly envelope: unknown;
   readonly headers: MessageHeaders;
   readonly routingKey: string;
 };

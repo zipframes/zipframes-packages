@@ -69,9 +69,15 @@ importers:
 
   packages/communication:
     dependencies:
+      '@zipframes/core':
+        specifier: workspace:^
+        version: link:../core
       '@zipframes/schemas':
         specifier: workspace:^
         version: link:../schemas
+      zod:
+        specifier: ^4.1.5
+        version: 4.6.5
     devDependencies:
       '@types/amqplib':
         specifier: ^0.10.7

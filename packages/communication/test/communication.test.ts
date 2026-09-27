@@ -246,7 +246,9 @@ describe("publisher and consumer over RabbitMQ", () => {
     await port.waitForCount("processor.video.uploaded", 1);
 
     expect(port.pending("processor.video.uploaded")).toBe(1);
-    expect(port.dequeue("processor.video.uploaded")?.envelope.eventType).toBe("video.uploaded");
+    expect(port.dequeue("processor.video.uploaded")?.envelope).toMatchObject({
+      eventType: "video.uploaded",
+    });
   });
 
   it("acks successful handling", async () => {
@@ -264,11 +266,11 @@ describe("publisher and consumer over RabbitMQ", () => {
     });
     await port.waitForCount(queue, 1);
 
-    const seen: string[] = [];
+    const seen: unknown[] = [];
     const consumer = createConsumer(
       port,
       async (message, context) => {
-        seen.push(message.envelope.eventType);
+        seen.push(message.envelope);
         expect(context.attempt).toBe(1);
         expect(context.redelivered).toBe(false);
         await context.ack();
@@ -281,7 +283,7 @@ describe("publisher and consumer over RabbitMQ", () => {
     );
 
     await consumer.start();
-    expect(seen).toEqual(["video.uploaded"]);
+    expect(seen).toEqual([expect.objectContaining({ eventType: "video.uploaded" })]);
     expect(port.pending(queue)).toBe(0);
     await consumer.stop();
   });
