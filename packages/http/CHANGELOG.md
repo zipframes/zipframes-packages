@@ -1,5 +1,12 @@
 # @zipframes/http
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`f5adac2`](https://github.com/zipframes/zipframes-packages/commit/f5adac2a4e8bb06ec5d097c2d9ff14df2fe8a436)]:
+  - @zipframes/schemas@0.2.0
+
 ## 0.2.0
 
 ### Minor Changes
