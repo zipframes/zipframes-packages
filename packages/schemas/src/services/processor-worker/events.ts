@@ -12,6 +12,8 @@ export const videoProcessedPayloadSchema = z.object({
   resultKey: z.string().min(1),
   frameCount: z.number().int().positive(),
   durationMs: z.number().int().nonnegative(),
+  ownerId: z.string().min(1).optional(),
+  originalFileName: z.string().min(1).optional(),
 });
 
 export const videoFailedPayloadSchema = z.object({
@@ -20,6 +22,7 @@ export const videoFailedPayloadSchema = z.object({
   errorCode: z.string().min(1),
   reason: z.string().min(1),
   attempts: z.number().int().positive(),
+  originalFileName: z.string().min(1).optional(),
 });
 
 export const videoProcessingStartedEventSchema = eventEnvelopeSchema(
