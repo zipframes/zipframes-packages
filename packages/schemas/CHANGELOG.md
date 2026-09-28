@@ -1,5 +1,11 @@
 # @zipframes/schemas
 
+## 0.2.0
+
+### Minor Changes
+
+- [#45](https://github.com/zipframes/zipframes-packages/pull/45) [`f5adac2`](https://github.com/zipframes/zipframes-packages/commit/f5adac2a4e8bb06ec5d097c2d9ff14df2fe8a436) Thanks [@knzt](https://github.com/knzt)! - - feat(schemas): add video-service route params and list query contracts
+
 ## 0.1.3
 
 ### Patch Changes
