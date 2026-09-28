@@ -11,16 +11,7 @@ export type {
 export { computeBackoffMs, decideRetry } from "./retry/index.js";
 export type { RetryDecision, RetryOptions } from "./retry/index.js";
 
-export {
-  createDefaultTopology,
-  createNotificationConsumerTopology,
-  DEFAULT_EXCHANGE,
-  DLQ_QUEUE,
-  DLX_EXCHANGE,
-  NOTIFICATION_QUEUE,
-  NOTIFICATION_RETRY_QUEUE,
-  NOTIFICATION_ROUTING_KEYS,
-} from "./topology/index.js";
+export { createDefaultTopology } from "./topology/index.js";
 export type {
   BindingDefinition,
   ExchangeDefinition,

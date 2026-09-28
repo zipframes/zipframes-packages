@@ -10,13 +10,13 @@ Publicação e consumo de eventos, com retry e DLQ, encapsulando o broker.
 - `defineMessageHandler`: valida o envelope, chama o handler com o evento tipado e decide ack / retry / dead-letter
 - retry com backoff e roteamento para a DLQ
 - topologia padrão do exchange `zipframes.events`
-- `createNotificationConsumerTopology`: fila do notification-service, retry por TTL no exchange default (sem republicar em `zipframes.events`) e DLX compartilhada
 
 ## O que não é
 
 - decisão sobre o que fazer com a mensagem (use case)
 - schemas dos eventos (ficam em `@zipframes/schemas`)
 - SMTP / Nodemailer (ficam no notification-service)
+- fila, bindings e retry do notification-service (ficam no próprio serviço)
 - abrir a conexão com o broker (quem testa sobe RabbitMQ com `@zipframes/test-toolkit`)
 
 ## `defineMessageHandler`
