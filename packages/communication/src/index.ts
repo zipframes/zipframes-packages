@@ -23,9 +23,6 @@ export type {
 export { createNotifier } from "./notifier/index.js";
 export type {
   Notifier,
-  NotifierUserDeletedInput,
-  NotifierUserRegisteredInput,
-  NotifierUserUpdatedInput,
   NotifierVideoFailedInput,
   NotifierVideoProcessedInput,
 } from "./notifier/index.js";

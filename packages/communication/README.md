@@ -5,7 +5,7 @@ Publicação e consumo de eventos, com retry e DLQ, encapsulando o broker.
 ## O que é
 
 - publisher com confirmação e envelope tipado (`@zipframes/schemas`)
-- `createNotifier`: métodos tipados (`videoProcessed`, `videoFailed`, eventos de identidade) que preenchem o envelope e publicam no `zipframes.events`
+- `createNotifier`: métodos tipados (`videoProcessed`, `videoFailed`) que preenchem o envelope e publicam no `zipframes.events`
 - consumer com ack / retry / dead-letter
 - `defineMessageHandler`: valida o envelope, chama o handler com o evento tipado e decide ack / retry / dead-letter
 - retry com backoff e roteamento para a DLQ
@@ -45,7 +45,7 @@ Se `onExhausted` lançar, o erro sobe sem liquidar a mensagem; o consumer do bro
 
 ## `createNotifier`
 
-Outros serviços disparam e-mail publicando os eventos tipados. Não usam Nodemailer.
+O worker dispara o e-mail de resultado publicando `video.processed` e `video.failed`. Não usa Nodemailer. Eventos de identidade (`user.registered`, `user.updated`, `user.deleted`) não passam por este helper: o auth publica o envelope pelo `EventPublisher`.
 
 ```ts
 const notifier = createNotifier(createPublisher(amqp));
