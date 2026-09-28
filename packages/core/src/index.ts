@@ -38,4 +38,10 @@ export type { Pingable, ReadinessResult } from "./readiness/index.js";
 export { createReadinessCheck } from "./readiness/index.js";
 
 export type { ProblemDetails } from "./http/index.js";
-export { PROBLEM_CONTENT_TYPE, problemDetails, problemResponse } from "./http/index.js";
+export {
+  PROBLEM_CONTENT_TYPE,
+  problemDetails,
+  problemDetailsJsonSchema,
+  problemDetailsSchema,
+  problemResponse,
+} from "./http/index.js";
