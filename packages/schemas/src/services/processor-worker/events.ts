@@ -23,6 +23,7 @@ export const videoFailedPayloadSchema = z.object({
   reason: z.string().min(1),
   attempts: z.number().int().positive(),
   originalFileName: z.string().min(1).optional(),
+  uploadedAt: z.string().datetime().optional(),
 });
 
 export const videoProcessingStartedEventSchema = eventEnvelopeSchema(

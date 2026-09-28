@@ -47,6 +47,7 @@ describe("createNotifier", () => {
       reason: "no frames extracted",
       attempts: 1,
       originalFileName: "demo.mp4",
+      uploadedAt: "2026-09-22T12:00:00.000Z",
     };
 
     await notifier.videoFailed({ correlationId, payload });

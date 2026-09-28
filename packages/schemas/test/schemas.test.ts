@@ -209,6 +209,7 @@ describe("video-service and processor-worker", () => {
             reason: "no frames extracted",
             attempts: 1,
             originalFileName: "demo.mp4",
+            uploadedAt: "2026-09-22T12:00:00.000Z",
           },
         }),
       ),
