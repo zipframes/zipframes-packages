@@ -19,7 +19,6 @@ import {
   videoProcessingStartedEventSchema,
 } from "../src/services/processor-worker/index.js";
 import {
-  confirmUploadResponseSchema,
   DEFAULT_VIDEO_PAGE_SIZE,
   downloadResponseSchema,
   getVideoResponseSchema,
@@ -27,8 +26,7 @@ import {
   listVideosResponseSchema,
   videoIdParamsSchema,
   videoListItemSchema,
-  requestUploadRequestSchema,
-  requestUploadResponseSchema,
+  uploadVideoResponseSchema,
   videoUploadedEventSchema,
 } from "../src/services/video-service/index.js";
 import { EVENT_EXCHANGE } from "../src/shared/envelope.js";
@@ -184,30 +182,8 @@ describe("video-service and processor-worker", () => {
   });
 
   it("parses video HTTP contracts", () => {
-    expect(
-      isOk(
-        parseSchema(requestUploadRequestSchema, {
-          originalFileName: "demo.mp4",
-          contentType: "video/mp4",
-          sizeBytes: 2048,
-        }),
-      ),
-    ).toBe(true);
-
-    expect(
-      isOk(
-        parseSchema(requestUploadResponseSchema, {
-          videoId,
-          uploadUrl: "https://storage.example/upload",
-          sourceKey: `uploads/user-1/${videoId}`,
-          expiresInSeconds: 900,
-        }),
-      ),
-    ).toBe(true);
-
-    expect(isOk(parseSchema(confirmUploadResponseSchema, { videoId, status: "QUEUED" }))).toBe(
-      true,
-    );
+    expect(isOk(parseSchema(uploadVideoResponseSchema, { videoId, status: "QUEUED" }))).toBe(true);
+    expect(isErr(parseSchema(uploadVideoResponseSchema, { videoId, status: "DONE" }))).toBe(true);
 
     expect(
       isOk(
