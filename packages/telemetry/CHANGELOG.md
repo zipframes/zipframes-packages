@@ -1,5 +1,12 @@
 # @zipframes/telemetry
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`ec14344`](https://github.com/zipframes/zipframes-packages/commit/ec1434463e4d8f9d5bead547df76b6589ba72821)]:
+  - @zipframes/core@0.5.0
+
 ## 0.1.3
 
 ### Patch Changes
