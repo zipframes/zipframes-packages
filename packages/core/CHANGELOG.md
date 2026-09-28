@@ -1,5 +1,11 @@
 # @zipframes/core
 
+## 0.5.0
+
+### Minor Changes
+
+- [#47](https://github.com/zipframes/zipframes-packages/pull/47) [`ec14344`](https://github.com/zipframes/zipframes-packages/commit/ec1434463e4d8f9d5bead547df76b6589ba72821) Thanks [@knzt](https://github.com/knzt)! - - feat: add problemDetailsSchema (core) and jsonSchemaOf (schemas)
+
 ## 0.4.0
 
 ### Minor Changes
