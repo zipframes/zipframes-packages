@@ -9,9 +9,14 @@ describe("public package surface", () => {
         "computeBackoffMs",
         "decideRetry",
         "createDefaultTopology",
+        "createNotificationConsumerTopology",
+        "createNotifier",
         "createPublisher",
         "createConsumer",
         "defineMessageHandler",
+        "NOTIFICATION_QUEUE",
+        "NOTIFICATION_RETRY_QUEUE",
+        "NOTIFICATION_ROUTING_KEYS",
       ]),
     );
   });
