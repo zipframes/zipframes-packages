@@ -1,43 +1,103 @@
 # @zipframes/schemas
 
-Contratos de eventos e de API do ZipFrames, organizados por serviço publicador.
+Schemas Zod dos contratos do ZipFrames: o envelope comum dos eventos, o payload de cada evento e as requisições e respostas das APIs HTTP. Os tipos TypeScript saem dos próprios schemas, então validação e tipo não divergem.
 
-## O que é
+Os contratos estão agrupados pelo serviço que os publica. Um consumidor importa do publicador do evento que consome.
 
-- schemas dos eventos de integração, com envelope e versão
-- schemas de request e response das APIs HTTP
-- tipos derivados dos schemas, para uso em tempo de compilação
+## Instalação
 
-## Fonte
+Os pacotes `@zipframes/*` são publicados no GitHub Packages. No `.npmrc` do projeto:
 
-Derivado da linguagem ubíqua e do mapa de eventos em
-[`knzt/zipframes` `docs/domain/dominio.md`](https://github.com/knzt/zipframes/blob/main/docs/domain/dominio.md).
-Quando AsyncAPI/OpenAPI forem fechados no app, estes schemas acompanham.
+```
+@zipframes:registry=https://npm.pkg.github.com
+```
 
-## Imports
+O GitHub Packages exige um token com `read:packages` mesmo para pacotes públicos. No `~/.npmrc`:
+
+```
+//npm.pkg.github.com/:_authToken=<seu token>
+```
+
+```bash
+pnpm add @zipframes/schemas zod
+```
+
+O pacote é ESM.
+
+## Uso
+
+### Validar um evento recebido
 
 ```ts
 import { parseSchema } from "@zipframes/schemas";
-import { userRegisteredEventSchema } from "@zipframes/schemas/auth-service";
-import { videoUploadedEventSchema } from "@zipframes/schemas/video-service";
-import { videoFailedEventSchema } from "@zipframes/schemas/processor-worker";
+import {
+  videoUploadedEventSchema,
+  type VideoUploadedEvent,
+} from "@zipframes/schemas/video-service";
+
+const result = parseSchema(videoUploadedEventSchema, JSON.parse(raw));
+
+if (result.ok) {
+  const event: VideoUploadedEvent = result.value;
+  console.log(event.payload.videoId);
+} else {
+  // ValidationError com as issues do Zod em error.details.issues
+}
 ```
 
-Quem consome importa do **serviço publicador**.
+`parseSchema` funciona com qualquer schema Zod e devolve `Result` em vez de lançar.
 
-`video.processed` aceita `ownerId` e `originalFileName` opcionais; `video.failed` aceita `originalFileName` e `uploadedAt` opcionais. O worker sempre envia esses campos para o notification-service.
+### Montar um evento para publicar
 
-## Eventos (v1)
+```ts
+import { EVENT_EXCHANGE, type EventEnvelope } from "@zipframes/schemas";
+import type { UserRegisteredPayload } from "@zipframes/schemas/auth-service";
 
-| Evento                                                          | Publicador       | Payload                                                            |
-| --------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------ |
-| `user.registered` / `user.updated` / `user.deleted`             | auth-service     | ver `auth-service`                                                 |
-| `video.uploaded`                                                | video-service    | `videoId`, `ownerId`, `sourceKey`, `originalFileName`, `sizeBytes` |
-| `video.processing.started` / `video.processed` / `video.failed` | processor-worker | ver `processor-worker`                                             |
+const event: EventEnvelope<UserRegisteredPayload> = {
+  eventId: randomUUID(),
+  eventType: "user.registered",
+  version: 1,
+  occurredAt: new Date().toISOString(),
+  correlationId,
+  payload: { userId, email, name },
+};
+// publicar em EVENT_EXCHANGE ("zipframes.events") com routing key = eventType
+```
 
-Exchange: `zipframes.events`.
+### Gerar JSON Schema para OpenAPI
 
-## HTTP do video-service
+```ts
+import { jsonSchemaOf } from "@zipframes/schemas";
+import { loginRequestSchema } from "@zipframes/schemas/auth-service";
+
+const body = jsonSchemaOf(loginRequestSchema); // sem o campo $schema
+```
+
+## Envelope
+
+Todo evento tem a mesma forma. `eventEnvelopeSchema(payloadSchema)` monta o schema completo para um payload.
+
+| Campo           | Tipo             | Descrição                                 |
+| --------------- | ---------------- | ----------------------------------------- |
+| `eventId`       | UUID             | Identidade desta publicação               |
+| `eventType`     | string           | Nome do evento, igual à routing key       |
+| `version`       | inteiro positivo | Versão do payload                         |
+| `occurredAt`    | data ISO 8601    | Quando o fato aconteceu                   |
+| `correlationId` | UUID             | Liga o evento à requisição que o originou |
+| `payload`       | objeto           | Dados do evento                           |
+
+## Contratos
+
+| Subcaminho                            | Eventos                                                       | HTTP                                          |
+| ------------------------------------- | ------------------------------------------------------------- | --------------------------------------------- |
+| `@zipframes/schemas/auth-service`     | `user.registered`, `user.updated`, `user.deleted`             | cadastro, login e JWKS                        |
+| `@zipframes/schemas/video-service`    | `video.uploaded`                                              | upload, listagem, detalhe e download de vídeo |
+| `@zipframes/schemas/processor-worker` | `video.processing.started`, `video.processed`, `video.failed` |                                               |
+| `@zipframes/schemas/shared`           | envelope, `EVENT_EXCHANGE`, `parseSchema`                     |                                               |
+
+Cada evento tem um schema de payload (`userRegisteredPayloadSchema`), um schema de envelope completo (`userRegisteredEventSchema`) e os tipos correspondentes (`UserRegisteredPayload`, `UserRegisteredEvent`).
+
+### HTTP do video-service
 
 | Rota                             | Entrada                                     | Resposta                    |
 | -------------------------------- | ------------------------------------------- | --------------------------- |
@@ -48,3 +108,7 @@ Exchange: `zipframes.events`.
 | `DELETE /videos/{videoId}`       | `videoIdParamsSchema`                       | 204, sem corpo              |
 
 `listVideosQuerySchema` converte `limit` da query string (padrão 20, máximo 100). A próxima página usa `before` com o `createdAt` do último item recebido.
+
+## Versionamento
+
+Mudar a forma de um payload de um jeito incompatível exige uma nova `version` do evento e uma versão major do pacote. Um campo novo e opcional mantém a versão do evento.

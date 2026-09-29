@@ -16,7 +16,7 @@ zipframes-packages/
 └── .changeset/
 ```
 
-Cada pacote é publicável de forma independente, com sua própria versão, seu próprio `package.json` e seu próprio README. Um pacote pode depender de outro deste repositório, desde que a dependência aponte para o centro. Só o `core` não depende de outro pacote. `value-objects` depende do `core`. `logger` e `test-toolkit` não dependem de pacote interno.
+Cada pacote é publicável de forma independente, com sua própria versão, seu próprio `package.json` e seu próprio README. Um pacote pode depender de outro deste repositório, desde que a dependência aponte para o centro. O `core` não depende de nenhum. `logger` e `test-toolkit` também não dependem de pacote interno.
 
 ```mermaid
 flowchart BT
@@ -27,13 +27,18 @@ flowchart BT
   logger["@zipframes/logger"]
   telemetry["@zipframes/telemetry"]
   auth["@zipframes/authenticator"]
+  http["@zipframes/http"]
   toolkit["@zipframes/test-toolkit"]
 
   vo --> core
   schemas --> core
   comm --> schemas
+  comm --> core
   auth --> core
   telemetry --> core
+  http --> auth
+  http --> schemas
+  http --> core
 ```
 
 ## Pacotes
@@ -89,13 +94,15 @@ Nenhuma dependência externa. `result`, `branded` e `errors` são o que a camada
 
 ```
 src/
-├── publisher/       # publisher confirms e outbox relay
-├── consumer/        # consumo com ack manual e prefetch
-├── retry/           # backoff e roteamento para DLQ
-└── topology/        # declaração de exchanges, filas e bindings
+├── handler/         # defineMessageHandler: valida, chama e liquida a mensagem
+├── publisher/       # publisher sobre um PublishPort
+├── consumer/        # consumidor de referência sobre uma fila em memória
+├── retry/           # backoff exponencial e decisão entre retry e DLQ
+├── topology/        # exchanges, filas e bindings como dados
+└── notifier/        # publicação tipada de video.processed e video.failed
 ```
 
-Encapsula o broker atrás de interfaces. O pacote não abre a conexão. Os serviços implementam `PublishPort` e o consumo com `amqplib` nos próprios adapters.
+Encapsula o broker atrás de interfaces. O pacote não abre a conexão: os serviços implementam `PublishPort` e o consumo com `amqplib` nos próprios adapters.
 
 ### `logger`
 
@@ -112,6 +119,19 @@ src/
 ├── metrics/         # registro e helpers de métricas Prometheus
 └── tracing/         # inicialização do OpenTelemetry e propagação de contexto
 ```
+
+### `http`
+
+```
+src/
+├── define-handler.ts        # defineHandler e defineAuthenticatedHandler
+├── execute-handler.ts       # valida, executa e traduz o Result
+├── authenticationHelper.ts  # lê o Bearer e verifica o token
+├── errorHelper.ts           # erro → problem+json
+└── types.ts                 # HttpRequest, HttpReply e os contextos
+```
+
+Handlers HTTP sem framework: validam entrada e saída com Zod, verificam o JWT quando a rota exige e devolvem um `HttpReply`. O adapter de cada serviço (Fastify, no ZipFrames) só converte a requisição e a resposta.
 
 ### `authenticator`
 
