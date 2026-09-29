@@ -268,12 +268,23 @@ describe("video-service route parameters", () => {
     ).toEqual({ ok: true, value: { limit: 5, before: "2026-09-17T12:00:00.000Z" } });
   });
 
-  it.each([{ limit: "0" }, { limit: "101" }, { limit: "2.5" }, { before: "yesterday" }])(
-    "rejects the query %j",
-    (query) => {
-      expect(isErr(parseSchema(listVideosQuerySchema, query))).toBe(true);
-    },
-  );
+  it("filters the list by any status but DELETED", () => {
+    expect(parseSchema(listVideosQuerySchema, { status: "FAILED" })).toEqual({
+      ok: true,
+      value: { limit: DEFAULT_VIDEO_PAGE_SIZE, status: "FAILED" },
+    });
+  });
+
+  it.each([
+    { limit: "0" },
+    { limit: "101" },
+    { limit: "2.5" },
+    { before: "yesterday" },
+    { status: "DELETED" },
+    { status: "done" },
+  ])("rejects the query %j", (query) => {
+    expect(isErr(parseSchema(listVideosQuerySchema, query))).toBe(true);
+  });
 
   it("answers GET /videos/{videoId} with a list item", () => {
     expect(getVideoResponseSchema).toBe(videoListItemSchema);
