@@ -7,7 +7,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { isOk, isErr } from "@zipframes/core/result";
 
-import { createAuthenticator, createAuthenticatorFromKey } from "../src/verify/index.js";
+import {
+  createAuthenticator,
+  createAuthenticatorFromJwk,
+  createAuthenticatorFromKey,
+} from "../src/verify/index.js";
 
 const ISSUER = "https://auth.zipframes.local";
 const AUDIENCE = "video-service";
@@ -213,5 +217,54 @@ describe("createAuthenticator", () => {
 
     const result = await authenticator.verify(await fixture.sign());
     expect(isOk(result)).toBe(true);
+  });
+});
+
+describe("createAuthenticatorFromJwk", () => {
+  let fixture: Fixture;
+
+  beforeAll(async () => {
+    fixture = await buildFixture();
+  });
+
+  it("verifies a token against a single JWK, without an HTTP round trip", async () => {
+    const authenticator = createAuthenticatorFromJwk(fixture.publicJwk, {
+      issuer: ISSUER,
+      audience: AUDIENCE,
+    });
+
+    const result = await authenticator.verify(await fixture.sign({ sub: "local-user" }));
+
+    expect(isOk(result)).toBe(true);
+    if (isOk(result)) {
+      expect(result.value.sub).toBe("local-user");
+    }
+  });
+
+  it("accepts a key set, so a rotation can publish two keys at once", async () => {
+    const retiring = await buildFixture();
+    const authenticator = createAuthenticatorFromJwk(
+      [{ ...retiring.publicJwk, kid: "auth-key-0" }, fixture.publicJwk],
+      { issuer: ISSUER, audience: AUDIENCE },
+    );
+
+    const result = await authenticator.verify(await fixture.sign({ sub: "user-1" }));
+
+    expect(isOk(result)).toBe(true);
+  });
+
+  it("rejects a token signed by a key outside the set", async () => {
+    const stranger = await buildFixture();
+    const authenticator = createAuthenticatorFromJwk(fixture.publicJwk, {
+      issuer: ISSUER,
+      audience: AUDIENCE,
+    });
+
+    const result = await authenticator.verify(await stranger.sign());
+
+    expect(isErr(result)).toBe(true);
+    if (isErr(result)) {
+      expect(result.error.code).toBe("AUTH_INVALID_TOKEN");
+    }
   });
 });

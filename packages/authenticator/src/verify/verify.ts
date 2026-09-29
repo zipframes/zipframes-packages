@@ -1,5 +1,5 @@
-import { jwtVerify } from "jose";
-import type { JWTPayload, JWTVerifyGetKey } from "jose";
+import { createLocalJWKSet, jwtVerify } from "jose";
+import type { JWK, JWTPayload, JWTVerifyGetKey } from "jose";
 
 import { UnauthorizedError } from "@zipframes/core/errors";
 import { err, ok } from "@zipframes/core/result";
@@ -97,3 +97,21 @@ export const createAuthenticatorFromKey = (
     },
   };
 };
+
+/**
+ * Same as `createAuthenticator`, but verifies against keys already in
+ * memory instead of fetching a JWKS over HTTP.
+ *
+ * This is what auth-service uses on its own routes: it holds the key it
+ * signs with, so calling its own JWKS endpoint would mean an HTTP round
+ * trip to itself, over a port it may not know yet when `PORT=0` lets the
+ * system pick one. Tests that sign their own tokens want the same thing.
+ */
+export const createAuthenticatorFromJwk = (
+  keys: JWK | readonly JWK[],
+  options: Omit<AuthenticatorOptions, "jwks">,
+): Authenticator =>
+  createAuthenticatorFromKey(
+    createLocalJWKSet({ keys: Array.isArray(keys) ? [...keys] : [keys] }),
+    options,
+  );
