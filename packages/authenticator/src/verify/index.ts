@@ -1,2 +1,6 @@
-export { createAuthenticator, createAuthenticatorFromKey } from "./verify.js";
+export {
+  createAuthenticator,
+  createAuthenticatorFromJwk,
+  createAuthenticatorFromKey,
+} from "./verify.js";
 export type { Authenticator, AuthenticatorOptions, VerifiedClaims } from "./verify.js";

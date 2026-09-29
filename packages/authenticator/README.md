@@ -49,22 +49,24 @@ As chaves são buscadas no primeiro uso e ficam em cache. Uma chave desconhecida
 
 `verify` falha com `UnauthorizedError` quando o token está vazio (`AUTH_MISSING_TOKEN`), quando não tem `sub` (`AUTH_MISSING_SUBJECT`) ou quando a verificação falha (`AUTH_INVALID_TOKEN`).
 
-### Em testes
+### Com a chave já em mãos
 
-`createAuthenticatorFromKey` aceita um resolvedor de chave pronto, sem servidor HTTP:
+`createAuthenticatorFromJwk` recebe a chave pública direto, sem buscar o JWKS por HTTP. É o que o auth-service usa nas próprias rotas: ele já tem em memória a chave com que assina, e chamar o próprio JWKS seria uma ida e volta HTTP a si mesmo, por uma porta que ele pode ainda não conhecer quando `PORT=0` deixa o sistema escolher. Em teste, vale pelo mesmo motivo: quem assina o token não precisa subir servidor para verificá-lo.
 
 ```ts
-import { createLocalJWKSet, exportJWK, generateKeyPair } from "jose";
-import { createAuthenticatorFromKey } from "@zipframes/authenticator";
+import { exportJWK, generateKeyPair } from "jose";
+import { createAuthenticatorFromJwk } from "@zipframes/authenticator";
 
 const { publicKey } = await generateKeyPair("RS256");
-const jwks = { keys: [{ ...(await exportJWK(publicKey)), kid: "test", alg: "RS256" }] };
+const publicJwk = { ...(await exportJWK(publicKey)), kid: "key-1", alg: "RS256" };
 
-const authenticator = createAuthenticatorFromKey(createLocalJWKSet(jwks), {
+const authenticator = createAuthenticatorFromJwk(publicJwk, {
   issuer: "https://auth.test",
   audience: "my-api",
 });
 ```
+
+Aceita também uma lista, para uma rotação publicar duas chaves ao mesmo tempo. Para um resolvedor de chave montado à mão, use `createAuthenticatorFromKey`.
 
 ## Opções
 
@@ -80,9 +82,10 @@ const authenticator = createAuthenticatorFromKey(createLocalJWKSet(jwks), {
 
 ## API
 
-| Export                       | Descrição                                               |
-| ---------------------------- | ------------------------------------------------------- |
-| `createAuthenticator`        | Cria o verificador a partir da URL do JWKS              |
-| `createAuthenticatorFromKey` | Cria o verificador a partir de um resolvedor de chave   |
-| `createJwksClient`           | Só o cliente de JWKS com cache, para uso direto no jose |
-| `VerifiedClaims`             | Claims do token, com `sub` obrigatório                  |
+| Export                       | Descrição                                                   |
+| ---------------------------- | ----------------------------------------------------------- |
+| `createAuthenticator`        | Cria o verificador a partir da URL do JWKS                  |
+| `createAuthenticatorFromJwk` | Cria o verificador a partir da JWK pública, ou de uma lista |
+| `createAuthenticatorFromKey` | Cria o verificador a partir de um resolvedor de chave       |
+| `createJwksClient`           | Só o cliente de JWKS com cache, para uso direto no jose     |
+| `VerifiedClaims`             | Claims do token, com `sub` obrigatório                      |
