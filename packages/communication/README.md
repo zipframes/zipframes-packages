@@ -5,7 +5,7 @@ Publicação e consumo de eventos, com retry e DLQ, encapsulando o broker.
 ## O que é
 
 - publisher com confirmação e envelope tipado (`@zipframes/schemas`)
-- `createNotifier`: métodos tipados (`videoProcessed`, `videoFailed`) que preenchem o envelope e publicam no `zipframes.events`
+- `createNotifierEmailHelper`: métodos tipados (`videoProcessed`, `videoFailed`) que preenchem o envelope e publicam no `zipframes.events`
 - consumer com ack / retry / dead-letter
 - `defineMessageHandler`: valida o envelope, chama o handler com o evento tipado e decide ack / retry / dead-letter
 - retry com backoff e roteamento para a DLQ
@@ -15,8 +15,8 @@ Publicação e consumo de eventos, com retry e DLQ, encapsulando o broker.
 
 - decisão sobre o que fazer com a mensagem (use case)
 - schemas dos eventos (ficam em `@zipframes/schemas`)
-- SMTP / Nodemailer (ficam no notification-service)
-- fila, bindings e retry do notification-service (ficam no próprio serviço)
+- SMTP / Nodemailer (ficam no notifier-service)
+- fila, bindings e retry do notifier-service (ficam no próprio serviço)
 - abrir a conexão com o broker (quem testa sobe RabbitMQ com `@zipframes/test-toolkit`)
 
 ## `defineMessageHandler`
@@ -43,14 +43,14 @@ const handler: ConsumeHandler = defineMessageHandler({
 
 Se `onExhausted` lançar, o erro sobe sem liquidar a mensagem; o consumer do broker trata como falha da tentativa.
 
-## `createNotifier`
+## `createNotifierEmailHelper`
 
 O worker dispara o e-mail de resultado publicando `video.processed` e `video.failed`. Não usa Nodemailer. Eventos de identidade (`user.registered`, `user.updated`, `user.deleted`) não passam por este helper: o auth publica o envelope pelo `EventPublisher`.
 
 ```ts
-const notifier = createNotifier(createPublisher(amqp));
+const emailHelper = createNotifierEmailHelper(createPublisher(amqp));
 
-await notifier.videoProcessed({
+await emailHelper.videoProcessed({
   correlationId,
   payload: { videoId, resultKey, frameCount, durationMs, ownerId, originalFileName },
 });

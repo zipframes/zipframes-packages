@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { Publisher } from "../src/index.js";
-import { createNotifier } from "../src/notifier/index.js";
+import { createNotifierEmailHelper } from "../src/notifier/index.js";
 
 const uuidV4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const isoInstant = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const correlationId = "22222222-2222-4222-8222-222222222222";
 const videoId = "11111111-1111-4111-8111-111111111111";
 
-describe("createNotifier", () => {
+describe("createNotifierEmailHelper", () => {
   it("fills the envelope and publishes video.processed on zipframes.events", async () => {
     const publish = vi.fn(async () => undefined);
-    const notifier = createNotifier({ publish } as Publisher);
+    const emailHelper = createNotifierEmailHelper({ publish } as Publisher);
     const payload = {
       videoId,
       resultKey: `outputs/user-1/${videoId}.zip`,
@@ -21,7 +21,7 @@ describe("createNotifier", () => {
       originalFileName: "demo.mp4",
     };
 
-    await notifier.videoProcessed({ correlationId, payload });
+    await emailHelper.videoProcessed({ correlationId, payload });
 
     expect(publish).toHaveBeenCalledWith(
       {
@@ -38,7 +38,7 @@ describe("createNotifier", () => {
 
   it("publishes video.failed with the original file name", async () => {
     const publish = vi.fn(async () => undefined);
-    const notifier = createNotifier({ publish } as Publisher);
+    const emailHelper = createNotifierEmailHelper({ publish } as Publisher);
     const payload = {
       videoId,
       ownerId: "user-1",
@@ -49,7 +49,7 @@ describe("createNotifier", () => {
       uploadedAt: "2026-09-22T12:00:00.000Z",
     };
 
-    await notifier.videoFailed({ correlationId, payload });
+    await emailHelper.videoFailed({ correlationId, payload });
 
     expect(publish).toHaveBeenCalledWith(
       expect.objectContaining({ eventType: "video.failed", payload }),

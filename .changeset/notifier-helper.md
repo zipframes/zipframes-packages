@@ -5,4 +5,4 @@
 
 feat(schemas): add optional ownerId, originalFileName and uploadedAt on video outcome events
 
-feat(communication): add createNotifier for video.processed and video.failed
+feat(communication): add createNotifierEmailHelper for video.processed and video.failed

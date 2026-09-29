@@ -20,11 +20,11 @@ export type {
   Topology,
 } from "./topology/index.js";
 
-export { createNotifier } from "./notifier/index.js";
+export { createNotifierEmailHelper } from "./notifier/index.js";
 export type {
-  Notifier,
-  NotifierVideoFailedInput,
-  NotifierVideoProcessedInput,
+  NotifierEmailHelper,
+  NotifierEmailHelperVideoFailedInput,
+  NotifierEmailHelperVideoProcessedInput,
 } from "./notifier/index.js";
 
 export { createPublisher } from "./publisher/index.js";

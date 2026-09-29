@@ -1,6 +1,6 @@
-export { createNotifier } from "./notifier.js";
+export { createNotifierEmailHelper } from "./notifierEmailHelper.js";
 export type {
-  Notifier,
-  NotifierVideoFailedInput,
-  NotifierVideoProcessedInput,
-} from "./notifier.js";
+  NotifierEmailHelper,
+  NotifierEmailHelperVideoFailedInput,
+  NotifierEmailHelperVideoProcessedInput,
+} from "./notifierEmailHelper.js";
