@@ -1,5 +1,11 @@
 # @zipframes/authenticator
 
+## 0.2.0
+
+### Minor Changes
+
+- [#55](https://github.com/zipframes/zipframes-packages/pull/55) [`b709077`](https://github.com/zipframes/zipframes-packages/commit/b709077d8d7597742fc5601c66a2d7dce5343238) Thanks [@knzt](https://github.com/knzt)! - - feat(authenticator): verify against a JWK already in memory, with `createAuthenticatorFromJwk`
+
 ## 0.1.4
 
 ### Patch Changes
