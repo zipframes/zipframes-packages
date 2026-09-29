@@ -1,73 +1,125 @@
 # @zipframes/core
 
-Tipos e utilitários de domínio sem dependência externa nenhuma.
+`Result`, branded types, uma hierarquia de erros com status HTTP e utilitários de readiness e de Problem Details. Não tem nenhuma dependência de runtime.
 
-## O que é
+## Instalação
 
-- `Result`, com `ok`, `err` e combinadores
-- branded types
-- erros base, separados por origem (`domain`, `application`, `infrastructure`) e os erros semânticos comuns a qualquer serviço
-- readiness (`Pingable`, `createReadinessCheck`)
-- o envelope HTTP de Problem Details (`problemDetails`, `problemResponse`)
-
-## Estrutura
+Os pacotes `@zipframes/*` são publicados no GitHub Packages. No `.npmrc` do projeto:
 
 ```
-src/branded
-src/errors
-src/http
-src/readiness
-src/result
-test
+@zipframes:registry=https://npm.pkg.github.com
 ```
 
-`result`, `branded` e `errors` são o que a camada de domínio pode importar, junto com `value-objects`. `readiness` e `http` ficam na borda.
+O GitHub Packages exige um token com `read:packages` mesmo para pacotes públicos. No `~/.npmrc`:
 
-## Import
+```
+//npm.pkg.github.com/:_authToken=<seu token>
+```
 
-O pacote pode ser importado inteiro ou por subcaminho, quando você quiser deixar explícito de onde vem cada coisa:
+```bash
+pnpm add @zipframes/core
+```
+
+O pacote é ESM.
+
+## Uso
+
+### Result
+
+Uma função que pode falhar devolve `Result<T, E>` em vez de lançar:
 
 ```ts
-import { ok, err, DomainError } from "@zipframes/core";
+import { ok, err, isOk, map, type Result } from "@zipframes/core/result";
+import { ValidationError } from "@zipframes/core/errors";
 
-import { ok, err } from "@zipframes/core/result";
-import { DomainError } from "@zipframes/core/errors";
-import { brand } from "@zipframes/core/branded";
-import { problemResponse } from "@zipframes/core/http";
-import { createReadinessCheck } from "@zipframes/core/readiness";
+const parseAge = (raw: string): Result<number, ValidationError> => {
+  const age = Number(raw);
+  return Number.isInteger(age) && age >= 0
+    ? ok(age)
+    : err(new ValidationError("INVALID_AGE", "age must be a non-negative integer"));
+};
+
+const result = map(parseAge("42"), (age) => age + 1);
+if (isOk(result)) {
+  console.log(result.value); // 43
+} else {
+  console.log(result.error.code);
+}
 ```
 
-As duas formas entregam a mesma implementação.
+Também existem `mapErr`, `andThen`, `unwrapOr`, `unwrapOrElse`, `match` e `all`.
 
-## Erros
+### Branded types
 
-| Classe                | Origem           | Quando                                              |
-| --------------------- | ---------------- | --------------------------------------------------- |
-| `ValidationError`     | `domain`         | Formato ou invariante violada                       |
-| `NotFoundError`       | `application`    | O recurso não existe, ou não existe para quem pediu |
-| `ConflictError`       | `application`    | Choque com o estado atual                           |
-| `UnauthorizedError`   | `application`    | Sem identidade válida                               |
-| `ForbiddenError`      | `application`    | Identidade válida, sem permissão                    |
-| `TimeoutError`        | `infrastructure` | Prazo estourado                                     |
-| `UnavailableError`    | `infrastructure` | Dependência fora do ar                              |
-| `InternalServerError` | `infrastructure` | Falha inesperada no serviço ou em dependência       |
+```ts
+import { brand, type Brand } from "@zipframes/core/branded";
 
-Cada classe traz `statusCode` (número HTTP). Os padrões são:
+type UserId = Brand<string, "UserId">;
 
-| Classe / origem       | `statusCode` |
-| --------------------- | ------------ |
-| `DomainError`         | 400          |
-| `ApplicationError`    | 400          |
-| `InfrastructureError` | 500          |
-| `ValidationError`     | 400          |
-| `UnauthorizedError`   | 401          |
-| `ForbiddenError`      | 403          |
-| `NotFoundError`       | 404          |
-| `ConflictError`       | 409          |
-| `InternalServerError` | 500          |
-| `UnavailableError`    | 503          |
-| `TimeoutError`        | 504          |
+const userId = brand<UserId>("5f0c...");
+// Uma string comum não é aceita onde se espera UserId.
+```
 
-O adapter HTTP lê `error.statusCode` em vez de montar tabelas `instanceof`. `toJSON()` inclui o status. `http/` empacota um envelope RFC 9457 (`problemDetails`, `problemResponse`) a partir do status já escolhido.
+### Erros
 
-Os erros de infraestrutura têm `retryable`. Em `TimeoutError` e `UnavailableError` o padrão é `true`; em `InternalServerError` é `false`. É por `retryable` que o consumer decide entre reenfileirar a mensagem e mandá-la para a DLQ, sem inspecionar a classe.
+Todo erro tem `code`, `message` e `statusCode`. Quem responde HTTP lê `error.statusCode` em vez de testar a classe:
+
+```ts
+import { NotFoundError, UnavailableError, isRetryableError } from "@zipframes/core/errors";
+
+const notFound = new NotFoundError("VIDEO_NOT_FOUND", "video not found");
+notFound.statusCode; // 404
+
+const down = new UnavailableError("DB_DOWN", "database unreachable", { cause });
+isRetryableError(down); // true
+```
+
+| Classe                | Base                  | `statusCode` | `retryable` |
+| --------------------- | --------------------- | ------------ | ----------- |
+| `ValidationError`     | `DomainError`         | 400          |             |
+| `UnauthorizedError`   | `ApplicationError`    | 401          |             |
+| `ForbiddenError`      | `ApplicationError`    | 403          |             |
+| `NotFoundError`       | `ApplicationError`    | 404          |             |
+| `ConflictError`       | `ApplicationError`    | 409          |             |
+| `InternalServerError` | `InfrastructureError` | 500          | `false`     |
+| `UnavailableError`    | `InfrastructureError` | 503          | `true`      |
+| `TimeoutError`        | `InfrastructureError` | 504          | `true`      |
+
+`DomainError` e `ApplicationError` usam 400 por padrão e `InfrastructureError` usa 500. `retryable` só existe nos erros de infraestrutura e pode ser sobrescrito no construtor (`{ retryable: false }`). `isRetryableError` devolve `false` para erros de domínio e de aplicação e `true` para qualquer erro que não seja um `BaseError`, porque uma falha desconhecida numa fila costuma valer uma nova tentativa.
+
+### Readiness
+
+Qualquer dependência que implemente `Pingable` entra na checagem, na ordem dada. A primeira falha vira o `reason`:
+
+```ts
+import { createReadinessCheck, type Pingable } from "@zipframes/core/readiness";
+
+const database: Pingable = { ping: () => prisma.$queryRaw`SELECT 1`.then(() => undefined) };
+const broker: Pingable = { ping: () => channel.checkExchange("events").then(() => undefined) };
+
+const checkReadiness = createReadinessCheck([database, broker]);
+const { ready, reason } = await checkReadiness();
+```
+
+### Problem Details (RFC 9457)
+
+```ts
+import { problemResponse } from "@zipframes/core/http";
+
+const reply = problemResponse(404, "Not Found", "video not found", correlationId);
+// { status: 404, contentType: "application/problem+json", body: { type, title, status, detail, correlationId } }
+```
+
+`problemDetailsJsonSchema` e `problemDetailsSchema(description)` descrevem esse corpo para OpenAPI.
+
+## Subcaminhos
+
+Tudo sai também da raiz (`@zipframes/core`). Os subcaminhos existem para deixar explícito de onde cada coisa vem:
+
+| Subcaminho                  | Conteúdo                                                |
+| --------------------------- | ------------------------------------------------------- |
+| `@zipframes/core/result`    | `Result`, `ok`, `err` e combinadores                    |
+| `@zipframes/core/branded`   | `Brand`, `Unbrand`, `brand`                             |
+| `@zipframes/core/errors`    | Classes de erro, `isBaseError`, `isRetryableError`      |
+| `@zipframes/core/readiness` | `Pingable`, `createReadinessCheck`                      |
+| `@zipframes/core/http`      | `problemDetails`, `problemResponse` e o schema do corpo |
