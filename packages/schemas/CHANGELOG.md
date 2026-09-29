@@ -1,5 +1,13 @@
 # @zipframes/schemas
 
+## 1.1.0
+
+### Minor Changes
+
+- [#50](https://github.com/zipframes/zipframes-packages/pull/50) [`f0fb226`](https://github.com/zipframes/zipframes-packages/commit/f0fb22629fdb19660ec8aac3a05acf6a1a1d4b68) Thanks [@knzt](https://github.com/knzt)! - feat(schemas): add optional ownerId, originalFileName and uploadedAt on video outcome events
+
+  feat(communication): add createNotifierEmailHelper for video.processed and video.failed
+
 ## 1.0.0
 
 ### Major Changes
