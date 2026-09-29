@@ -1,5 +1,11 @@
 # @zipframes/schemas
 
+## 1.3.0
+
+### Minor Changes
+
+- [#55](https://github.com/zipframes/zipframes-packages/pull/55) [`b709077`](https://github.com/zipframes/zipframes-packages/commit/b709077d8d7597742fc5601c66a2d7dce5343238) Thanks [@knzt](https://github.com/knzt)! - - feat(schemas): filter the video list by status
+
 ## 1.2.0
 
 ### Minor Changes

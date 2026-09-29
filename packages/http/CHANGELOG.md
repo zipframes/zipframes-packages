@@ -1,5 +1,13 @@
 # @zipframes/http
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`b709077`](https://github.com/zipframes/zipframes-packages/commit/b709077d8d7597742fc5601c66a2d7dce5343238), [`b709077`](https://github.com/zipframes/zipframes-packages/commit/b709077d8d7597742fc5601c66a2d7dce5343238)]:
+  - @zipframes/authenticator@0.2.0
+  - @zipframes/schemas@1.3.0
+
 ## 0.2.2
 
 ### Patch Changes
