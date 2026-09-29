@@ -41,13 +41,18 @@ export const videoIdParamsSchema = z.object({
 export const DEFAULT_VIDEO_PAGE_SIZE = 20;
 export const MAX_VIDEO_PAGE_SIZE = 100;
 
+/** Statuses `GET /videos` can filter by: deleted videos are never listed. */
+export const listableVideoStatusSchema = videoStatusSchema.exclude(["DELETED"]);
+
 /**
  * Query string of `GET /videos`. The list is newest first; the next page is
- * asked with `before` set to the `createdAt` of the last item received.
+ * asked with `before` set to the `createdAt` of the last item received, and
+ * `status` keeps only the videos in that status.
  */
 export const listVideosQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(MAX_VIDEO_PAGE_SIZE).default(DEFAULT_VIDEO_PAGE_SIZE),
   before: z.iso.datetime().optional(),
+  status: listableVideoStatusSchema.optional(),
 });
 
 /** `GET /videos/{videoId}` answers the same shape as one list item. */
@@ -60,6 +65,7 @@ export const downloadResponseSchema = z.object({
 });
 
 export type VideoStatus = z.infer<typeof videoStatusSchema>;
+export type ListableVideoStatus = z.infer<typeof listableVideoStatusSchema>;
 export type UploadVideoResponse = z.infer<typeof uploadVideoResponseSchema>;
 export type VideoListItem = z.infer<typeof videoListItemSchema>;
 export type ListVideosResponse = z.infer<typeof listVideosResponseSchema>;

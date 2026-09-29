@@ -99,15 +99,15 @@ Cada evento tem um schema de payload (`userRegisteredPayloadSchema`), um schema 
 
 ### HTTP do video-service
 
-| Rota                             | Entrada                                     | Resposta                    |
-| -------------------------------- | ------------------------------------------- | --------------------------- |
-| `POST /videos`                   | `multipart/form-data`, campo `file`         | `uploadVideoResponseSchema` |
-| `GET /videos`                    | `listVideosQuerySchema` (`limit`, `before`) | `listVideosResponseSchema`  |
-| `GET /videos/{videoId}`          | `videoIdParamsSchema`                       | `getVideoResponseSchema`    |
-| `GET /videos/{videoId}/download` | `videoIdParamsSchema`                       | `downloadResponseSchema`    |
-| `DELETE /videos/{videoId}`       | `videoIdParamsSchema`                       | 204, sem corpo              |
+| Rota                             | Entrada                                               | Resposta                    |
+| -------------------------------- | ----------------------------------------------------- | --------------------------- |
+| `POST /videos`                   | `multipart/form-data`, campo `file`                   | `uploadVideoResponseSchema` |
+| `GET /videos`                    | `listVideosQuerySchema` (`limit`, `before`, `status`) | `listVideosResponseSchema`  |
+| `GET /videos/{videoId}`          | `videoIdParamsSchema`                                 | `getVideoResponseSchema`    |
+| `GET /videos/{videoId}/download` | `videoIdParamsSchema`                                 | `downloadResponseSchema`    |
+| `DELETE /videos/{videoId}`       | `videoIdParamsSchema`                                 | 204, sem corpo              |
 
-`listVideosQuerySchema` converte `limit` da query string (padrão 20, máximo 100). A próxima página usa `before` com o `createdAt` do último item recebido.
+`listVideosQuerySchema` converte `limit` da query string (padrão 20, máximo 100). A próxima página usa `before` com o `createdAt` do último item recebido. `status` filtra por um status (`listableVideoStatusSchema`: todos menos `DELETED`, que nunca aparece na lista).
 
 ## Versionamento
 
