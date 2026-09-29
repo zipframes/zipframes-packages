@@ -1,6 +1,8 @@
 # @zipframes/value-objects
 
-Value objects validados e imutáveis para dados brasileiros e de contato (e-mail, telefone, CPF, CNPJ e nome), e `defineValueObject`, a função que você usa para criar os seus com o mesmo comportamento.
+A fonte única dos value objects do ZipFrames: os genéricos, para dados brasileiros e de contato (e-mail, telefone, CPF, CNPJ e nome), os da plataforma (senha, nome de arquivo de vídeo) e `defineValueObject`, a função com que todos eles são construídos — e com que você constrói os seus.
+
+Nenhum serviço define value object próprio. Uma regra sobre o que é um valor válido tem um dono só, aqui, versionado.
 
 Um value object aqui é o próprio valor primitivo com um branded type. `Email.create(" Ana@Exemplo.com ")` devolve a string `"ana@exemplo.com"`, mas o TypeScript não aceita uma string comum onde se espera um `Email`.
 
@@ -59,6 +61,32 @@ Cada value object tem:
 | `Cpf`   | só dígitos (11)                        | `INVALID_CHARACTERS`, `INVALID_LENGTH`, `ALL_SAME_DIGIT`, `INVALID_CHECK_DIGIT` |
 | `Cnpj`  | só dígitos (14)                        | `INVALID_CHARACTERS`, `INVALID_LENGTH`, `ALL_SAME_DIGIT`, `INVALID_CHECK_DIGIT` |
 | `Name`  | trim e espaços colapsados, sem dígitos | `EMPTY`, `TOO_SHORT`, `TOO_LONG`, `INVALID_FORMAT`                              |
+
+## Value objects da plataforma
+
+Regras que o ZipFrames escolheu. Moram aqui para que exista uma resposta só, versionada, em vez de uma cópia por serviço.
+
+| Nome            | Regra                                                              | Códigos de erro                                  |
+| --------------- | ------------------------------------------------------------------ | ------------------------------------------------ |
+| `Password`      | 8 caracteres no mínimo, 72 **bytes** no máximo, com letra e dígito | `TOO_SHORT`, `TOO_LONG`, `NO_LETTER`, `NO_DIGIT` |
+| `VideoFileName` | Sem separador de caminho, com extensão de vídeo aceita             | `INVALID_FILE_NAME`, `UNSUPPORTED_EXTENSION`     |
+| `VideoFile`     | O par nome e MIME type                                             | os do nome, mais `INVALID_CONTENT_TYPE`          |
+
+```ts
+import { Password, VideoFile, ACCEPTED_VIDEO_EXTENSIONS } from "@zipframes/value-objects";
+
+Password.create("senha123"); // ok
+Password.toJSON(senha); // "[redacted]" — nunca o valor
+
+const file = VideoFile.create({ name: "aula.mp4", contentType: "video/mp4" });
+ACCEPTED_VIDEO_EXTENSIONS; // ["mp4", "avi", "mov", "mkv", "wmv", "flv", "webm"]
+```
+
+Três detalhes que economizam surpresa:
+
+- **`Password` não serializa o valor.** `toJSON` e `toString` devolvem `[redacted]`, porque é por essas duas funções que uma senha chegaria a um log. O brand é só tipo, então um `JSON.stringify` direto no valor ainda enxerga a string — passe pelo `toJSON`.
+- **O limite de senha é em bytes, não em caracteres**, porque o bcrypt trunca silenciosamente depois de 72 bytes.
+- **`asVideoFileName(nome)`** reidrata um nome que já foi validado antes de ser gravado, sem repassar pela política. Use só com valor vindo do banco, nunca com entrada.
 
 `Phone` aceita fixo (10 dígitos) e celular (11 dígitos) com DDD atribuído pela Anatel, com ou sem `+55` e com a formatação usual (`(11) 91234-5678`). A validação de e-mail é propositalmente simples: recusa o que está claramente errado (sem `@`, sem domínio, com espaço). A única prova de que um endereço existe é mandar uma mensagem para ele.
 

@@ -5,9 +5,25 @@ import { Email } from "../src/index.js";
 import type { Email as EmailType } from "../src/index.js";
 
 describe("public package surface", () => {
-  it("exports the base factory and all generic value objects as values", () => {
+  it("exports the base factory and every value object as a value", () => {
     expect(Object.keys(valueObjects)).toEqual(
-      expect.arrayContaining(["defineValueObject", "Email", "Phone", "Cpf", "Cnpj", "Name"]),
+      expect.arrayContaining([
+        "defineValueObject",
+        "Email",
+        "Phone",
+        "Cpf",
+        "Cnpj",
+        "Name",
+        "Password",
+        "VideoFileName",
+        "VideoFile",
+      ]),
+    );
+  });
+
+  it("exports the helpers that come with the platform value objects", () => {
+    expect(Object.keys(valueObjects)).toEqual(
+      expect.arrayContaining(["REDACTED", "asVideoFileName", "ACCEPTED_VIDEO_EXTENSIONS"]),
     );
   });
 
