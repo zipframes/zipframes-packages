@@ -20,6 +20,13 @@ export type {
   Topology,
 } from "./topology/index.js";
 
+export { createNotifierEmailHelper } from "./notifier/index.js";
+export type {
+  NotifierEmailHelper,
+  NotifierEmailHelperVideoFailedInput,
+  NotifierEmailHelperVideoProcessedInput,
+} from "./notifier/index.js";
+
 export { createPublisher } from "./publisher/index.js";
 export type { PublishPort } from "./publisher/index.js";
 

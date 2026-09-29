@@ -25,6 +25,8 @@ import { videoFailedEventSchema } from "@zipframes/schemas/processor-worker";
 
 Quem consome importa do **serviço publicador**.
 
+`video.processed` aceita `ownerId` e `originalFileName` opcionais; `video.failed` aceita `originalFileName` e `uploadedAt` opcionais. O worker sempre envia esses campos para o notification-service.
+
 ## Eventos (v1)
 
 | Evento                                                          | Publicador       | Payload                                                            |

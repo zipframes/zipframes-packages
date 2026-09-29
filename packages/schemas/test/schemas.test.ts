@@ -166,6 +166,23 @@ describe("video-service and processor-worker", () => {
 
     expect(
       isOk(
+        parseSchema(videoProcessedEventSchema, {
+          ...envelope,
+          eventType: "video.processed",
+          payload: {
+            videoId,
+            resultKey: `outputs/user-1/${videoId}.zip`,
+            frameCount: 10,
+            durationMs: 1500,
+            ownerId: "user-1",
+            originalFileName: "demo.mp4",
+          },
+        }),
+      ),
+    ).toBe(true);
+
+    expect(
+      isOk(
         parseSchema(videoFailedEventSchema, {
           ...envelope,
           eventType: "video.failed",
@@ -175,6 +192,24 @@ describe("video-service and processor-worker", () => {
             errorCode: "INVALID_MEDIA",
             reason: "no frames extracted",
             attempts: 1,
+          },
+        }),
+      ),
+    ).toBe(true);
+
+    expect(
+      isOk(
+        parseSchema(videoFailedEventSchema, {
+          ...envelope,
+          eventType: "video.failed",
+          payload: {
+            videoId,
+            ownerId: "user-1",
+            errorCode: "INVALID_MEDIA",
+            reason: "no frames extracted",
+            attempts: 1,
+            originalFileName: "demo.mp4",
+            uploadedAt: "2026-09-22T12:00:00.000Z",
           },
         }),
       ),

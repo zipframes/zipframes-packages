@@ -9,6 +9,7 @@ describe("public package surface", () => {
         "computeBackoffMs",
         "decideRetry",
         "createDefaultTopology",
+        "createNotifierEmailHelper",
         "createPublisher",
         "createConsumer",
         "defineMessageHandler",
