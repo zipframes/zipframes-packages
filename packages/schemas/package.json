@@ -1,6 +1,6 @@
 {
   "name": "@zipframes/schemas",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Contratos de eventos e de API, organizados por serviço publicador.",
   "license": "MIT",
   "type": "module",
